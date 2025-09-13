@@ -1,5 +1,6 @@
-from ultralytics import YOLO
 import yaml
+
+from ultralytics import YOLO
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
@@ -8,8 +9,8 @@ save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train"
 model_loc = f"{save_dir}/weights/best.pt"
 
 # load up the labels
-with open(yaml_loc, 'r') as f:
-	label = yaml.safe_load(f)['names']
+with open(yaml_loc) as f:
+    label = yaml.safe_load(f)["names"]
 print(label)
 
 # Load a pretrained YOLO model (recommended for training)
@@ -17,7 +18,7 @@ print(label)
 model = YOLO(model_loc)
 
 # Train the model using the dataset for 3 epochs
-results = model.train(data=yaml_loc, epochs=100000, imgsz=1024, device="mps") #, resume=True)
+results = model.train(data=yaml_loc, epochs=100000, imgsz=1024, device="mps")  # , resume=True)
 save_dir = str(results.save_dir)
 model_loc = f"{save_dir}/weights/best.pt"
 
