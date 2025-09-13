@@ -2,9 +2,9 @@ import os
 import subprocess
 import datetime
 
-def get_screenshot(device_id):
+def get_screenshot(device_id, path_and_filename = "screenshots/screenshot_{n}.png"):
     n = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    path_and_filename = f"screenshots/screenshot_{n}.png"
+    path_and_filename = path_and_filename.format(**{"n":n})
     cmd = [f"adb -s {device_id} exec-out screencap -p > {path_and_filename}"]
     process = subprocess.Popen(cmd, shell=True)
     process.wait()
@@ -24,6 +24,7 @@ def get_device_list():
 
 def tap(device_id, x, y):
     cmd = f"adb -s {device_id} shell input tap {x} {y}"
+    print(cmd)
     subprocess.run(cmd, shell=True)
 
 def swipe(device_id, direction):
