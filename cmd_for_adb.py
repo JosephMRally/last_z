@@ -31,3 +31,8 @@ def swipe(device_id, direction):
     cmd = f"adb -s {device_id} shell input touchscreen swipe 300 1000 300 500"
     subprocess.run(cmd, shell=True)
 # swipe("R9YT200S1PM", "up")
+
+def kill(device_id):
+    cmd = f"adb -s {device_id} shell am force-stop com.readygo.barrel.gp"
+    subprocess.run(cmd, shell=True)
+# kill()
