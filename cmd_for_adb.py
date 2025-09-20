@@ -3,7 +3,7 @@ import subprocess
 import datetime
 
 def get_screenshot(device_id, path_and_filename = "screenshots/screenshot_{n}.png"):
-    n = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    n = datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S_%f")
     path_and_filename = path_and_filename.format(**{"n":n})
     cmd = [f"adb -s {device_id} exec-out screencap -p > {path_and_filename}"]
     process = subprocess.Popen(cmd, shell=True)
