@@ -15,7 +15,7 @@ import random
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train4"
+save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train2"
 model_loc = f"{save_dir}/weights/best.pt"
 
 # load model
@@ -24,18 +24,23 @@ model = YOLO(model_loc)
 # show all devices
 print(common.get_device_list())
 
-device_id = "R9YT200S1PM"
 debug = True
+device_id = "R9YT200S1PM"
 help_others_counter = 0
 boomer_counter = 0
 state_of_action = None
-state_of_action_start_time = None
+last_action_timestamp = datetime.datetime.now()
 middle_of_xyxy = lambda xyxy : (xyxy[0]+(xyxy[2]-xyxy[0])/2, xyxy[1]+(xyxy[3]-xyxy[1])/2)
 translate_to_display = lambda x,y: (1200/1024*x, 1920/1024*y)
-loading_timestamp = None
-loading_wait_in_minutes = 2
 device_id = "R9YT200S1PM"
+has_gas = True
 
+def tap_this(obj_dict_entry):
+	a = objs[obj_dict_entry]
+	a = a[0][0]
+	x,y = middle_of_xyxy(a)
+	x,y = translate_to_display(x,y)
+	common.tap(device_id, x,y)
 
 while True:
 	# first take a screenshot
@@ -49,7 +54,7 @@ while True:
 	# Perform object detection on an image using the model
 	results = model.predict(path_and_filename, 
 		show=debug, show_boxes=True, verbose=False, 
-		imgsz=1024, conf=0.20)
+		imgsz=1024, conf=0.50)
 
 	# extract the results
 	objs = defaultdict(list)
@@ -69,97 +74,71 @@ while True:
 
 	if debug:
 		print("")
-		print(datetime.datetime.now())
+		print(datetime.datetime.now(), state_of_action)
 		#x = json.dumps(dict(objs))
 		for k in objs.items():
 			print(k)
 
-
-	if state_of_action != None and state_of_action_start_time+datetime.timedelta(minutes = 3) < datetime.datetime.now():
+	if has_gas and last_action_timestamp+datetime.timedelta(minutes = 3) < datetime.datetime.now():
 		# reset state if something went wrong
 		print("reset", str(datetime.datetime.now()))
 		state_of_action = None
-		state_of_action_start_time = None
+		last_action_timestamp = datetime.datetime.now()
+		common.kill(device_id)
 
 	elif state_of_action == None and "help others" in objs:
 		print("help others")
-		help_others = objs["help others"]
-		help_others = help_others[0][0]
-		x,y = middle_of_xyxy(help_others)
-		x,y = translate_to_display(x,y)
-		common.tap(device_id, x,y)
+		tap_this("help others")
 		help_others_counter += 1
-		print(help_others_counter, str(datetime.datetime.now()))
+		last_action_timestamp = datetime.datetime.now()
+		print("help others", help_others_counter, str(datetime.datetime.now()))
 
-	elif state_of_action == None and "loading" in objs and loading_timestamp == None:
-		print("starting timer for reset")
-		loading_timestamp = datetime.datetime.now()
-	elif state_of_action == None and "loading" in objs and loading_timestamp + datetime.timedelta(minutes=loading_wait_in_minutes) < datetime.datetime.now():
-		loading_timestamp = None
-		common.kill(device_id)
-		time.sleep(5)
-	elif state_of_action == None and "last z icon" in objs:
-		last_z_icon = objs["last z icon"]
-		last_z_icon = last_z_icon[0][0]
-		x,y = middle_of_xyxy(last_z_icon)
-		x,y = translate_to_display(x,y)
-		common.tap(device_id, x,y)
-		time.sleep(5)
+	elif "last z icon" in objs:
+		tap_this("last z icon")
+	elif "loading" in objs and state_of_action != "loading":
+		print("loading")
+		last_action_timestamp = datetime.datetime.now()
+		state_of_action = "loading"
+	elif state_of_action == "loading" and "exit" in objs:
+		tap_this("exit")
+	elif state_of_action == "loading" and "world" in objs:
+		tap_this("world")
+		state_of_action = None
 
-	elif state_of_action == None and "headquarters" in objs and "hero 1 sleeping" in objs and "magnifying glass" in objs:
-		common.get_screenshot(device_id)
-		print("starting boomer")
-		magnifying_glass = objs["magnifying glass"]
-		magnifying_glass = magnifying_glass[0][0]
-		x,y = middle_of_xyxy(magnifying_glass)
-		x,y = translate_to_display(x,y)
-		state_of_action = "boomer"
-		common.tap(device_id, x,y)
-		state_of_action_start_time = datetime.datetime.now()
+	elif has_gas and state_of_action == None and "headquarters" in objs and "hero 1 sleeping" in objs and "magnifying glass" in objs:
+		print("boomer starting")
+		last_action_timestamp = datetime.datetime.now()
+		tap_this("magnifying glass")
+		state_of_action = "boomer starting"
 	elif state_of_action != None and state_of_action.startswith("boomer"):
-		common.get_screenshot(device_id)
 		if "boomer selected" in objs:
 			print("boomer selected: ", end="")
-			boomer_selected = objs["boomer selected"]
-			boomer_selected = boomer_selected[0][0]
-			x,y = middle_of_xyxy(boomer_selected)
-			x,y = translate_to_display(x,y)
-			state_of_action_start_time = datetime.datetime.now()
+			tap_this("boomer selected")
 			state_of_action = "boomer selected"
-			common.tap(device_id, x,y)
 		elif "search" in objs:
 			print("boomer search: ", end="")
-			search = objs["search"]
-			search = search[0][0]
-			x,y = middle_of_xyxy(search)
-			x,y = translate_to_display(x,y)
+			tap_this("search")
 			state_of_action = "boomer search"
-			state_of_action_start_time = datetime.datetime.now()
-			common.tap(device_id, x,y)
 		elif "team up" in objs:
 			print("boomer team up: ", end="")
-			team_up = objs["team up"]
-			team_up = team_up[0][0]
-			x,y = middle_of_xyxy(team_up)
-			x,y = translate_to_display(x,y)
+			tap_this("team up")
 			state_of_action = "boomer team up"
-			state_of_action_start_time = datetime.datetime.now()
-			common.tap(device_id, x,y)
 		elif "march" in objs:
 			print("boomer march: ", end="")
-			march = objs["march"]
-			march = march[0][0]
-			x,y = middle_of_xyxy(march)
-			x,y = translate_to_display(x,y)
-			common.tap(device_id, x,y)
+			tap_this("march")
 			state_of_action = "boomer marching"
-			state_of_action_start_time = datetime.datetime.now()
 			boomer_counter += 1
+		elif "no gas" in objs:
+			print("no gas")
+			has_gas = False
+			state_of_action = None
 		elif "hero 1 sleeping" in objs:
 			print("boomer completed")
+			last_action_timestamp = datetime.datetime.now()
 			state_of_action = None
-			state_of_action_start_time = None
-	else:
-		time.sleep(2 + random.randrange(0, 100)/10)
+	elif not has_gas:
+		exit()
 
+	#time.sleep(2 + random.randrange(0, 100)/10)
+	time.sleep(4)
 
