@@ -4,7 +4,7 @@ import yaml
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train"
+save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train2"
 model_loc = f"{save_dir}/weights/best.pt"
 #model_loc = "yolo11n.pt"
 

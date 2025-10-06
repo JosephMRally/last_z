@@ -137,7 +137,7 @@ while True:
 			last_action_timestamp = datetime.datetime.now()
 			state_of_action = None
 	elif not has_gas:
-		exit()
+		tap_this("headquarters")
 
 	#time.sleep(2 + random.randrange(0, 100)/10)
 	time.sleep(4)
