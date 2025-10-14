@@ -1,3 +1,9 @@
+"""
+Copyright: (c) 2025 by Joseph Miguel
+           NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
+           LICENCE, GIVE ME SOME CREDIT IF YOU USE IT PLAYING THE GAME
+           T A C O - BORG QUEEN 001 
+"""
 from ultralytics import YOLO
 import yaml
 

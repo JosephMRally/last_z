@@ -1,3 +1,9 @@
+"""
+Copyright: (c) 2025 by Joseph Miguel
+           NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
+           LICENCE, GIVE ME SOME CREDIT IF YOU USE IT PLAYING THE GAME
+           T A C O - BORG QUEEN 001 
+"""
 from ultralytics import YOLO
 import yaml
 import time
@@ -24,7 +30,7 @@ model = YOLO(model_loc)
 # show all devices
 print(common.get_device_list())
 
-debug = True
+debug = False
 device_id = "R9YT200S1PM"
 help_others_counter = 0
 boomer_counter = 0
@@ -62,13 +68,14 @@ while True:
 		boxes = r.boxes
 		for box in boxes:
 			b = box.xyxy.tolist()
+			b = [[int(a) for a in x] for x in b]  # xyxy convert to int
 			c = int(box.cls)
 			c_name = model.names[c]
 			objs[c_name].append(b)
 	objs = dict(objs)
 
 
-	# print(objs)
+	print(objs)
 	# r = redis.Redis()
 	# r.set("vision", json.dumps(dict(objs)))
 
@@ -136,8 +143,9 @@ while True:
 			print("boomer completed")
 			last_action_timestamp = datetime.datetime.now()
 			state_of_action = None
-	elif not has_gas:
-		tap_this("headquarters")
+	elif not has_gas and "headquarters" not in objs:
+		objs["corner"] = [[[0, 0, 0, 0]]]
+		tap_this("corner")
 
 	#time.sleep(2 + random.randrange(0, 100)/10)
 	time.sleep(4)
