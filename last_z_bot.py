@@ -23,7 +23,7 @@ import random
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train2"
+save_dir = "./runs/detect/train"
 model_loc = f"{save_dir}/weights/best.pt"
 
 # load model
@@ -101,7 +101,7 @@ while True:
 		tap_this("world")
 		state_of_action = None
 
-	elif has_gas and last_action_timestamp+datetime.timedelta(minutes = 3) < datetime.datetime.now():
+	elif last_action_timestamp+datetime.timedelta(minutes = 6) < datetime.datetime.now():
 		# reset state if something went wrong
 		print("reset", str(datetime.datetime.now()))
 		state_of_action = None
@@ -150,6 +150,4 @@ while True:
 		objs["corner"] = [[[0, 0, 0, 0]]]
 		tap_this("corner")
 
-	#time.sleep(2 + random.randrange(0, 100)/10)
 	time.sleep(4)
-

@@ -9,13 +9,19 @@ Copyright: (c) 2025 by Joseph Miguel<br/>
 from ultralytics import YOLO
 import yaml
 import datetime
+import os
+import shutil
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/"
-model_loc = f"{save_dir}/weights/best.pt"
-model_loc = "yolo11n.pt"
+save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train/"
+model_loc = "yolo11n.pt"  # to start training from scratch
+# model_loc = f"{save_dir}/weights/best.pt"
+
+
+# delete the old model
+shutil.rmtree("./runs/detect/train2", ignore_errors=True)
 
 # load up the labels
 with open(yaml_loc, 'r') as f:
@@ -32,8 +38,10 @@ model_loc = f"{save_dir}/weights/best.pt"
 
 # Evaluate the model's performance on the validation set
 results = model.val()
+print()
 print(results)
 print(model_loc)
+
 
 from roboflow import Roboflow
 rf = Roboflow()
