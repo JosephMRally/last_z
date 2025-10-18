@@ -1,18 +1,21 @@
 """
-Copyright: (c) 2025 by Joseph Miguel
-           NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
-           LICENCE, GIVE ME SOME CREDIT IF YOU USE IT PLAYING THE GAME
-           T A C O - BORG QUEEN 001 
+Copyright: (c) 2025 by Joseph Miguel<br/>
+           NO WARRANTY, EXPRESS OR IMPLIED. AS-IS.  USE AT-YOUR-OWN-RISK.
+
+           LICENCE TO USE - FREE with one condition:
+           GIVE ME SOME CREDIT IF YOU USE IT TO PLAY THE GAME
+           139 - T A C O    418 - BORG QUEEN 001 
 """
 from ultralytics import YOLO
 import yaml
+import datetime
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train2"
+save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/"
 model_loc = f"{save_dir}/weights/best.pt"
-#model_loc = "yolo11n.pt"
+model_loc = "yolo11n.pt"
 
 # load up the labels
 with open(yaml_loc, 'r') as f:
@@ -31,3 +34,24 @@ model_loc = f"{save_dir}/weights/best.pt"
 results = model.val()
 print(results)
 print(model_loc)
+
+from roboflow import Roboflow
+rf = Roboflow()
+workspace = rf.workspace("lastz-u33ao")
+print(workspace)
+print(workspace.project_list)
+project = workspace.project("last_z-afohb")
+print(project)
+version = project.version(6)
+#dataset = version.download("yolov11")
+
+project.version(6).deploy(model_type="yolov11", model_path=save_dir)
+
+# roboflow upload_model -w lastz -p custom-object-detector-yolo11 -t yolov11 -n my-model-v1 -m ./runs/detect/train19
+#workspace.deploy_model(project.
+#    model_type="yolov11",  # Type of the model
+#    model_path=save_dir,  # Path to model directory
+#    project_ids=["custom-object-detector-yolo11"],  # List of project IDs
+#    model_name=datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S_%f"),  # Name for the model (must have at least 1 letter, and accept numbers and dashes)
+#    filename="weights/best.pt"  # Path to weights file (default)
+#)

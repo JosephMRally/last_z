@@ -1,8 +1,10 @@
 """
-Copyright: (c) 2025 by Joseph Miguel
-           NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
-           LICENCE, GIVE ME SOME CREDIT IF YOU USE IT PLAYING THE GAME
-           T A C O - BORG QUEEN 001 
+Copyright: (c) 2025 by Joseph Miguel<br/>
+           NO WARRANTY, EXPRESS OR IMPLIED. AS-IS.  USE AT-YOUR-OWN-RISK.
+
+           LICENCE TO USE - FREE with one condition:
+           GIVE ME SOME CREDIT IF YOU USE IT TO PLAY THE GAME
+           139 - T A C O    418 - BORG QUEEN 001 
 """
 from ultralytics import YOLO
 import yaml
@@ -60,7 +62,7 @@ while True:
 	# Perform object detection on an image using the model
 	results = model.predict(path_and_filename, 
 		show=debug, show_boxes=True, verbose=False, 
-		imgsz=1024, conf=0.50)
+		imgsz=1024, conf=0.80)
 
 	# extract the results
 	objs = defaultdict(list)
@@ -86,7 +88,20 @@ while True:
 		for k in objs.items():
 			print(k)
 
-	if has_gas and last_action_timestamp+datetime.timedelta(minutes = 3) < datetime.datetime.now():
+	if "last z icon" in objs:
+		tap_this("last z icon")
+		time.sleep(60 * 5)		
+	elif "loading" in objs and state_of_action != "loading":
+		print("loading")
+		last_action_timestamp = datetime.datetime.now()
+		state_of_action = "loading"
+	elif state_of_action == "loading" and "exit" in objs:
+		tap_this("exit")
+	elif state_of_action == "loading" and "world" in objs:
+		tap_this("world")
+		state_of_action = None
+
+	elif has_gas and last_action_timestamp+datetime.timedelta(minutes = 3) < datetime.datetime.now():
 		# reset state if something went wrong
 		print("reset", str(datetime.datetime.now()))
 		state_of_action = None
@@ -99,18 +114,6 @@ while True:
 		help_others_counter += 1
 		last_action_timestamp = datetime.datetime.now()
 		print("help others", help_others_counter, str(datetime.datetime.now()))
-
-	elif "last z icon" in objs:
-		tap_this("last z icon")
-	elif "loading" in objs and state_of_action != "loading":
-		print("loading")
-		last_action_timestamp = datetime.datetime.now()
-		state_of_action = "loading"
-	elif state_of_action == "loading" and "exit" in objs:
-		tap_this("exit")
-	elif state_of_action == "loading" and "world" in objs:
-		tap_this("world")
-		state_of_action = None
 
 	elif has_gas and state_of_action == None and "headquarters" in objs and "hero 1 sleeping" in objs and "magnifying glass" in objs:
 		print("boomer starting")
