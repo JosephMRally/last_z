@@ -17,12 +17,12 @@ yaml_loc = f"{data_loc}/data.yaml"
 
 # what pre-trained model should be continue training from
 # adding/changing classes could require making a new model
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train/"
+save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train2/"
 # model_loc = "yolo11n.pt"  # to start training from scratch
 model_loc = f"{save_dir}/weights/best.pt"
 
 # delete the old model
-shutil.rmtree("./runs/detect/train2", ignore_errors=True)
+# shutil.rmtree("./runs/detect/train2", ignore_errors=True)
 
 # load up the labels
 with open(yaml_loc, 'r') as f:
@@ -33,31 +33,31 @@ print(label)
 model = YOLO(model_loc)
 
 # Train the model using the dataset for 3 epochs
-results = model.train(data=yaml_loc, epochs=100000, imgsz=1024, device="mps", resume=True)
+results = model.train(data=yaml_loc, epochs=10000, imgsz=1024, device="mps") # , resume=True)
 save_dir = str(results.save_dir)
 model_loc = f"{save_dir}/weights/best.pt"
 
 # Evaluate the model's performance on the validation set
-results = model.val()
-print()
-print(results)
-print(model_loc)
+# results = model.val()
+# print()
+# print(results)
+# print(model_loc)
 
 
 
 
 
-from roboflow import Roboflow
-rf = Roboflow()
-workspace = rf.workspace("lastz-u33ao")
-print(workspace)
-print(workspace.project_list)
-project = workspace.project("last_z-afohb")
-print(project)
-version = project.version(6)
-#dataset = version.download("yolov11")
+# from roboflow import Roboflow
+# rf = Roboflow()
+# workspace = rf.workspace("lastz-u33ao")
+# print(workspace)
+# print(workspace.project_list)
+# project = workspace.project("last_z-afohb")
+# print(project)
+# version = project.version(6)
+# dataset = version.download("yolov11")
 
-project.version(6).deploy(model_type="yolov11", model_path=save_dir)
+# project.version(6).deploy(model_type="yolov11", model_path=save_dir)
 
 # roboflow upload_model -w lastz -p custom-object-detector-yolo11 -t yolov11 -n my-model-v1 -m ./runs/detect/train19
 #workspace.deploy_model(project.

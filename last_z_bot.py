@@ -25,7 +25,7 @@ pygame.init()
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "./runs/detect/train"
+save_dir = "./runs/detect/train2"
 model_loc = f"{save_dir}/weights/best.pt"
 
 # load model
@@ -103,8 +103,9 @@ while True:
 		common.kill(device_id)
 	
 	elif "last z icon" in objs:
+		time.sleep(60 * 5)
 		tap_this("last z icon")
-		time.sleep(60 * 5)		
+		last_action_timestamp = datetime.datetime.now()
 	elif "loading" in objs and state_of_action != "loading":
 		print("loading")
 		last_action_timestamp = datetime.datetime.now()
@@ -118,12 +119,13 @@ while True:
 	elif "attack" in objs:
 		print("under attack")
 		pygame.mixer.music.load("alarm_sound.mp3") 
-		pygame.mixer.music.play(loops=3)		
+		pygame.mixer.music.play(loops=0)		
 	elif "medic" in objs:
 		print("medic")
 		tap_this("medic")
-		pygame.mixer.music.load("alarm_sound.mp3") 
-		pygame.mixer.music.play(loops=3)		
+	elif "exit" in objs and len(objs)==1:
+		print("objs")
+		tap_this("exit")	
 
 	elif state_of_action == None and "help others" in objs:
 		print("help others")
