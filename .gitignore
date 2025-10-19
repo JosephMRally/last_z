@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 **/.DS_Store
+screenshots/
+screenshots/train/
 
 # C extensions
 *.so

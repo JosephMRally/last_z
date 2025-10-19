@@ -15,10 +15,11 @@ import shutil
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
+# what pre-trained model should be continue training from
+# adding/changing classes could require making a new model
 save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train/"
-model_loc = "yolo11n.pt"  # to start training from scratch
-# model_loc = f"{save_dir}/weights/best.pt"
-
+# model_loc = "yolo11n.pt"  # to start training from scratch
+model_loc = f"{save_dir}/weights/best.pt"
 
 # delete the old model
 shutil.rmtree("./runs/detect/train2", ignore_errors=True)
@@ -32,7 +33,7 @@ print(label)
 model = YOLO(model_loc)
 
 # Train the model using the dataset for 3 epochs
-results = model.train(data=yaml_loc, epochs=1000, imgsz=1024, device="mps")  #, resume=True)
+results = model.train(data=yaml_loc, epochs=100000, imgsz=1024, device="mps", resume=True)
 save_dir = str(results.save_dir)
 model_loc = f"{save_dir}/weights/best.pt"
 
@@ -41,6 +42,9 @@ results = model.val()
 print()
 print(results)
 print(model_loc)
+
+
+
 
 
 from roboflow import Roboflow

@@ -19,6 +19,8 @@ import redis
 import json
 import datetime
 import random
+import pygame
+pygame.init()
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
@@ -31,6 +33,11 @@ model = YOLO(model_loc)
 
 # show all devices
 print(common.get_device_list())
+
+# load up the labels
+with open(yaml_loc, 'r') as f:
+	label = yaml.safe_load(f)['names']
+print(label)
 
 debug = False
 device_id = "R9YT200S1PM"
@@ -88,7 +95,14 @@ while True:
 		for k in objs.items():
 			print(k)
 
-	if "last z icon" in objs:
+	if last_action_timestamp+datetime.timedelta(minutes = 10) < datetime.datetime.now():
+		# reset state, something went wrong
+		print("reset", str(datetime.datetime.now()))
+		state_of_action = None
+		last_action_timestamp = datetime.datetime.now()
+		common.kill(device_id)
+	
+	elif "last z icon" in objs:
 		tap_this("last z icon")
 		time.sleep(60 * 5)		
 	elif "loading" in objs and state_of_action != "loading":
@@ -101,12 +115,15 @@ while True:
 		tap_this("world")
 		state_of_action = None
 
-	elif last_action_timestamp+datetime.timedelta(minutes = 6) < datetime.datetime.now():
-		# reset state if something went wrong
-		print("reset", str(datetime.datetime.now()))
-		state_of_action = None
-		last_action_timestamp = datetime.datetime.now()
-		common.kill(device_id)
+	elif "attack" in objs:
+		print("under attack")
+		pygame.mixer.music.load("alarm_sound.mp3") 
+		pygame.mixer.music.play(loops=3)		
+	elif "medic" in objs:
+		print("medic")
+		tap_this("medic")
+		pygame.mixer.music.load("alarm_sound.mp3") 
+		pygame.mixer.music.play(loops=3)		
 
 	elif state_of_action == None and "help others" in objs:
 		print("help others")
@@ -115,6 +132,7 @@ while True:
 		last_action_timestamp = datetime.datetime.now()
 		print("help others", help_others_counter, str(datetime.datetime.now()))
 
+	"""
 	elif has_gas and state_of_action == None and "headquarters" in objs and "hero 1 sleeping" in objs and "magnifying glass" in objs:
 		print("boomer starting")
 		last_action_timestamp = datetime.datetime.now()
@@ -149,5 +167,6 @@ while True:
 	elif not has_gas and "headquarters" not in objs:
 		objs["corner"] = [[[0, 0, 0, 0]]]
 		tap_this("corner")
+	"""
 
 	time.sleep(4)
