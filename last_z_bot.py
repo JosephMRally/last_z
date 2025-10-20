@@ -77,11 +77,13 @@ class LoadingStrategy(ABC):
 			print("last z icon")
 			time.sleep(60 * 5)
 			tap_this("last z icon")
+			self.complete = False
 		elif "loading" in objs:
 			print("loading")
 			self.complete = False
 		elif "exit" in objs:
 			tap_this("exit")
+			self.complete = False
 		elif "world" in objs:
 			tap_this("world")
 			self.complete = True
@@ -90,12 +92,24 @@ class LoadingStrategy(ABC):
 		return 	self.complete
 
 class CompleteStrategy(ABC):
+	complete_count = 0
+	next_allowed_complete_timestamp = datetime.datetime.now()
+
 	def isReady(objs):
-		return "complete" in objs
+		if CompleteStrategy.complete_count == 10:
+			CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now() + datetime.timedelta(minutes = 1)
+			CompleteStrategy.complete_count = 0
+			return False
+
+		if "complete" in objs and "world" not in objs and "headquarters" not in objs:
+			return True
+
+		return CompleteStrategy.next_allowed_complete_timestamp < datetime.datetime.now() and "complete" in objs and "world" in objs
 
 	def perform(self, objs):
-		print("complete")
+		print(f"complete: {CompleteStrategy.complete_count}")
 		tap_this("complete")
+		CompleteStrategy.complete_count += 1
 
 	def isComplete(self, objs):
 		return True
@@ -173,22 +187,31 @@ class BuildStrategy(ABC):
 	build_counter = 0
 
 	def isReady(objs):
-		return "ready to build" in objs
+		res = 'build icon - can' in objs and "ready to build" in objs
+		return res
+
+	def __init__(self):
+		self.strategy_start_time = datetime.datetime.now()
 
 	def perform(self, objs):
-		print("ready to build")
-		if "ready to build" in objs and not hasattr(self, "state"):
+		print("building")
+		if self.strategy_start_time + datetime.timedelta(minutes=1) < datetime.datetime.now():
+			print("ran out of time")
+			self.state = "complete"
+		elif 'build icon - can' in objs and "ready to build" in objs and "upgrade" not in objs:
 			tap_this("ready to build")
-			self.state = "ready to build"
-		elif "upgrade" in objs and self.state == "ready to build":
+			self.state = ""
+		elif "ready to build" in objs and "upgrade" in objs:
 			tap_this("upgrade")
-			self.state = "upgrade"
-		elif "go" in objs and self.state == "upgrade":
+		elif "go" in objs:
 			tap_this("go")
+			self.state = "complete"
+		elif "exit" in objs:
+			tap_this("exit")
 			self.state = "complete"
 
 	def isComplete(self, objs):
-		return self.state == "complete"
+		return hasattr(self, "state") and self.state == "complete"
 
 
 
@@ -197,20 +220,10 @@ class BuildStrategy(ABC):
 
 pygame.init()
 
-data_loc = "datasets/last_z"
-yaml_loc = f"{data_loc}/data.yaml"
-
-def find_directories_os(path):
-    directories = []
-    for item in os.listdir(path):
-        item_path = os.path.join(path, item)
-        if os.path.isdir(item_path):
-            directories.append(item)
-    return directories
-d = find_directories_os("./runs/detect/")
-d = [int(x[5:]) for x in d if len(x)>5 and x.startswith("train")]
-save_dir = f"./runs/detect/train{max(d)}"
+# find the most recent model
+save_dir = common.find_most_recent_model_directory()
 model_loc = f"{save_dir}/weights/best.pt"
+print(save_dir)
 
 # load model
 model = YOLO(model_loc)
@@ -218,18 +231,14 @@ model = YOLO(model_loc)
 # show all devices
 print(common.get_device_list())
 
-# load up the labels
-with open(yaml_loc, 'r') as f:
-	label = yaml.safe_load(f)['names']
-print(label)
-
+# setup config values
 debug = True
-device_id = "R9YT200S1PM"
-middle_of_xyxy = lambda xyxy : (xyxy[0]+(xyxy[2]-xyxy[0])/2, xyxy[1]+(xyxy[3]-xyxy[1])/2)
-translate_to_display = lambda x,y: (1200/1024*x, 1920/1024*y)
 device_id = "R9YT200S1PM"
 has_gas = True
 
+# declaration of common methods
+middle_of_xyxy = lambda xyxy : (xyxy[0]+(xyxy[2]-xyxy[0])/2, xyxy[1]+(xyxy[3]-xyxy[1])/2)
+translate_to_display = lambda x,y: (1200/1024*x, 1920/1024*y)
 def tap_this(obj_dict_entry):
 	a = objs[obj_dict_entry]
 	a = a[0][0]
@@ -237,8 +246,10 @@ def tap_this(obj_dict_entry):
 	x,y = translate_to_display(x,y)
 	common.tap(device_id, x,y)
 
+# strategy design pattern
 ctx = StrategyContext()
 
+# infinite loop
 while True:
 	# first take a screenshot
 	path_and_filename = common.get_screenshot(device_id, "screenshots/screenshot.png")
@@ -251,7 +262,7 @@ while True:
 	# Perform object detection on an image using the model
 	results = model.predict(path_and_filename, 
 		show=debug, show_boxes=True, verbose=False, 
-		imgsz=1024, conf=0.50)
+		imgsz=1024, conf=0.80)
 
 	# extract the results
 	objs = defaultdict(list)
@@ -266,14 +277,11 @@ while True:
 	objs = dict(objs)
 
 
-	print(objs)
-
-	if debug:
-		print("")
-		print(datetime.datetime.now())
-		#x = json.dumps(dict(objs))
-		for k in objs.items():
-			print(k)
+	print("")
+	print(datetime.datetime.now())
+	k = list(objs.keys()).sort()
+	for k,v in objs.items():
+		print(k, v)
 
 	ctx.pick_strategy(objs)
 	

@@ -11,18 +11,17 @@ import yaml
 import datetime
 import os
 import shutil
+import cmd_for_adb as common
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
 # what pre-trained model should be continue training from
 # adding/changing classes could require making a new model
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/train3/"
+save_dir = common.find_most_recent_model_directory()
 # model_loc = "yolo11n.pt"  # to start training from scratch
 model_loc = f"{save_dir}/weights/best.pt"
-
-# delete the old model
-# shutil.rmtree("./runs/detect/train2", ignore_errors=True)
+print("loading model at: {model_loc}")
 
 # load up the labels
 with open(yaml_loc, 'r') as f:

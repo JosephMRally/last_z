@@ -36,3 +36,18 @@ def kill(device_id):
     cmd = f"adb -s {device_id} shell am force-stop com.readygo.barrel.gp"
     subprocess.run(cmd, shell=True)
 # kill()
+
+def find_directories_os(path):
+    directories = []
+    for item in os.listdir(path):
+        item_path = os.path.join(path, item)
+        if os.path.isdir(item_path):
+            directories.append(item)
+    return directories
+
+def find_most_recent_model_directory():
+    d = find_directories_os("./runs/detect/")
+    d = [int(x[5:]) for x in d if len(x)>5 and x.startswith("train")]
+    return f"./runs/detect/train{max(d)}"
+
+

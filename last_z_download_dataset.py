@@ -10,13 +10,14 @@ from ultralytics import YOLO
 import yaml
 import datetime
 from roboflow import Roboflow
+import cmd_for_adb as common
 import shutil
 import os
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = "/Users/large/Documents/code/python/ultralytics/runs/detect/"
+save_dir = common.find_most_recent_model_directory()
 model_loc = f"{save_dir}/weights/best.pt"
 model_loc = "yolo11n.pt"
 
@@ -26,9 +27,10 @@ workspace = rf.workspace("lastz-u33ao")
 project = workspace.project("last_z-afohb")
 project_versions = project.get_version_information()
 project_versions = {x['id']: x for x in project_versions}
-project_versions = {k.split("/")[-1]: v for k,v in project_versions.items()}
+project_versions = {int(k.split("/")[-1]): v for k,v in project_versions.items()}
 latest_version = max(project_versions.keys())
 version = project.version(latest_version)
+print(f"downloading version: {version}")
 
 # d/l
 dataset = version.download("yolov11")
