@@ -18,9 +18,9 @@ yaml_loc = f"{data_loc}/data.yaml"
 
 # what pre-trained model should be continue training from
 # adding/changing classes could require making a new model
-save_dir = common.find_most_recent_model_directory()
-# model_loc = "yolo11n.pt"  # to start training from scratch
-model_loc = f"{save_dir}/weights/best.pt"
+# save_dir = common.find_most_recent_model_directory()
+model_loc = "yolo11n.pt"  # to start training from scratch
+# model_loc = f"{save_dir}/weights/best.pt"
 print("loading model at: {model_loc}")
 
 # load up the labels

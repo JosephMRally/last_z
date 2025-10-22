@@ -12,6 +12,7 @@ import datetime
 import os
 import shutil
 from roboflow import Roboflow
+import cmd_for_adb as common
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
@@ -21,17 +22,15 @@ yaml_loc = f"{data_loc}/data.yaml"
 save_dir = common.find_most_recent_model_directory()
 # model_loc = "yolo11n.pt"  # to start training from scratch
 model_loc = f"{save_dir}/weights/best.pt"
+print(model_loc)
 
 # https://roboflow.github.io/roboflow-python/core/project/#roboflow.core.project.Project.list_versions
 rf = Roboflow()
 workspace = rf.workspace("lastz-u33ao")
-project = workspace.project("last_z-afohb")
-project_versions = project.get_version_information()
-project_versions = {x['id']: x for x in project_versions}
-project_versions = {k.split("/")[-1]: v for k,v in project_versions.items()}
-print(project_versions)
-# latest_version = max(project_versions.keys())
-# version = project.version(latest_version)
-# project.version(latest_version).deploy(model_type="yolov11", model_path=save_dir)
+# project = workspace.project("last_z-afohb")
+# project_versions = project.get_version_information()
+# project_versions = {x['id']: x for x in project_versions}
+# project_versions = {k.split("/")[-1]: v for k,v in project_versions.items()}
+
 model_name=datetime.datetime.now().strftime("z--%Y-%m-%d--%H-%M-%S")
 workspace.deploy_model(model_type="yolov11", model_path=save_dir, model_name=model_name, project_ids=["last_z-afohb"])

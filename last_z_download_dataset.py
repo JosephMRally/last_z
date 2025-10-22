@@ -17,9 +17,9 @@ import os
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
-save_dir = common.find_most_recent_model_directory()
-model_loc = f"{save_dir}/weights/best.pt"
-model_loc = "yolo11n.pt"
+# save_dir = common.find_most_recent_model_directory()
+# model_loc = f"{save_dir}/weights/best.pt"
+# model_loc = "yolo11n.pt"
 
 # https://roboflow.github.io/roboflow-python/core/project/#roboflow.core.project.Project.list_versions
 rf = Roboflow()

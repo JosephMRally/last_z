@@ -30,20 +30,22 @@ class StrategyContext:
 		self.last_action_timestamp = datetime.datetime.now()
 
 	def pick_strategy(self, objs):
+		# TODO: should this be moved to strategy?
 		if self.last_action_timestamp+datetime.timedelta(minutes = 10) < datetime.datetime.now():
 			# reset state, something went wrong
 			print("reset", str(datetime.datetime.now()))
-			state_of_action = None
 			self.last_action_timestamp = datetime.datetime.now()
 			common.kill(device_id)
 			self.strategy = None
-			return
 
 		if self.strategy == None:
+			# TODO: make this dynamic
 			if LoadingStrategy.isReady(objs):
 				self.strategy = LoadingStrategy()
 			elif CompleteStrategy.isReady(objs):
 				self.strategy = CompleteStrategy()
+			elif ExitStrategy.isReady(objs):
+				self.strategy = ExitStrategy()
 			elif HelpOthersStrategy.isReady(objs):
 				self.strategy = HelpOthersStrategy()
 			#elif BoomerStrategy.isReady(objs):
@@ -51,11 +53,11 @@ class StrategyContext:
 			elif BuildStrategy.isReady(objs):
 				self.strategy = BuildStrategy()
 
-		if self.strategy != None:
+		if self.strategy != None:	
 			self.strategy.perform(objs)
-			self.last_action_timestamp = datetime.datetime.now()
 			if self.strategy.isComplete(objs):
 				self.strategy = None
+				self.last_action_timestamp = datetime.datetime.now()
 
 class SortingStrategy(ABC):
 	@abstractmethod
@@ -75,7 +77,7 @@ class LoadingStrategy(ABC):
 	def perform(self, objs):
 		if "last z icon" in objs:
 			print("last z icon")
-			time.sleep(60 * 5)
+			time.sleep(60 * 1)
 			tap_this("last z icon")
 			self.complete = False
 		elif "loading" in objs:
@@ -96,15 +98,20 @@ class CompleteStrategy(ABC):
 	next_allowed_complete_timestamp = datetime.datetime.now()
 
 	def isReady(objs):
-		if CompleteStrategy.complete_count == 10:
-			CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now() + datetime.timedelta(minutes = 1)
+		# collect at least once every 8 hours
+		if CompleteStrategy.next_allowed_complete_timestamp + datetime.timedelta(hours = 8) < datetime.datetime.now():
+			CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now()
 			CompleteStrategy.complete_count = 0
-			return False
+			return True
 
+		# congrats page
 		if "complete" in objs and "world" not in objs and "headquarters" not in objs:
 			return True
 
-		return CompleteStrategy.next_allowed_complete_timestamp < datetime.datetime.now() and "complete" in objs and "world" in objs
+		if "complete" in objs and "world" in objs and CompleteStrategy.complete_count < 10:
+			return True
+
+		return False
 
 	def perform(self, objs):
 		print(f"complete: {CompleteStrategy.complete_count}")
@@ -113,6 +120,10 @@ class CompleteStrategy(ABC):
 
 	def isComplete(self, objs):
 		return True
+
+	def reset():
+		CompleteStrategy.complete_count = 0
+		CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now()
 
 class HelpOthersStrategy(ABC):
 	help_others_counter = 0
@@ -125,6 +136,18 @@ class HelpOthersStrategy(ABC):
 		tap_this("help others")
 		HelpOthersStrategy.help_others_counter += 1
 		print(f"help others {HelpOthersStrategy.help_others_counter} times")
+
+	def isComplete(self, objs):
+		return True
+
+class ExitStrategy(ABC):
+	# this one should not be needed, something went wrong
+	def isReady(objs):
+		return "exit" in objs and len(objs)==1
+
+	def perform(self, objs):
+		print("exit")
+		tap_this("exit")
 
 	def isComplete(self, objs):
 		return True
@@ -188,6 +211,8 @@ class BuildStrategy(ABC):
 
 	def isReady(objs):
 		res = 'build icon - can' in objs and "ready to build" in objs
+		if res:
+			CompleteStrategy.reset() # TODO: mediator design pattern
 		return res
 
 	def __init__(self):
@@ -200,8 +225,8 @@ class BuildStrategy(ABC):
 			self.state = "complete"
 		elif 'build icon - can' in objs and "ready to build" in objs and "upgrade" not in objs:
 			tap_this("ready to build")
-			self.state = ""
-		elif "ready to build" in objs and "upgrade" in objs:
+			self.state = "building"
+		elif self.state == "building" and "upgrade" in objs:
 			tap_this("upgrade")
 		elif "go" in objs:
 			tap_this("go")
@@ -279,9 +304,10 @@ while True:
 
 	print("")
 	print(datetime.datetime.now())
-	k = list(objs.keys()).sort()
-	for k,v in objs.items():
-		print(k, v)
+	ke = list(objs.keys())
+	ke.sort()
+	for k in ke:
+		print(k, objs[k])
 
 	ctx.pick_strategy(objs)
 	
