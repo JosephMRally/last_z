@@ -2,20 +2,12 @@
 Copyright: (c) 2025 by Joseph Miguel
            NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
            LICENCE, GIVE ME SOME CREDIT IF YOU USE IT PLAYING THE GAME
-           T A C O - BORG QUEEN 001 
+           T A C O - BORG QUEEN 001.
 """
-from ultralytics import YOLO
-import yaml
-import time
-from cmd_for_adb import *
+
 import cv2
-import subprocess
-from ultralytics.utils.plotting import Annotator
-import numpy as np
-from collections import defaultdict
-import redis
-import json
-import datetime
+
+from cmd_for_adb import *
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
@@ -31,5 +23,5 @@ path_and_filename = get_screenshot(device_id, "screenshots_train/screenshot_{n}.
 
 # resize
 img = cv2.imread(path_and_filename)
-img_2 = cv2.resize(img, (1024, 1024)) # YOLO default image size is 640
+img_2 = cv2.resize(img, (1024, 1024))  # YOLO default image size is 640
 cv2.imwrite(path_and_filename, img_2)
