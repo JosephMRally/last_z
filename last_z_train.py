@@ -12,16 +12,25 @@ import datetime
 import os
 import shutil
 import cmd_for_adb as common
+import time
+import subprocess
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"
 
 # what pre-trained model should be continue training from
 # adding/changing classes could require making a new model
-# save_dir = common.find_most_recent_model_directory()
-model_loc = "yolo11n.pt"  # to start training from scratch
-# model_loc = f"{save_dir}/weights/best.pt"
-print("loading model at: {model_loc}")
+save_dir = common.find_most_recent_model_directory()
+if not save_dir:
+    model_loc = "yolo11n.pt"  # to start training from scratch
+else:
+    model_loc = f"{save_dir}/weights/best.pt"
+print(f"loading model at: {model_loc}")
+
+# download latest version
+cmd = [f"python last_z_download_dataset.py"]
+process = subprocess.Popen(cmd, shell=True)
+process.wait()
 
 # load up the labels
 with open(yaml_loc, 'r') as f:
@@ -32,9 +41,18 @@ print(label)
 model = YOLO(model_loc)
 
 # Train the model using the dataset for 3 epochs
-results = model.train(data=yaml_loc, epochs=10000, imgsz=1024, device="mps") # , resume=True)
-save_dir = str(results.save_dir)
-model_loc = f"{save_dir}/weights/best.pt"
+count=0
+while True:
+    try:
+        results = model.train(data=yaml_loc, epochs=10000, imgsz=1024, device="mps", patience=300)
+        save_dir = str(results.save_dir)
+        model_loc = f"{save_dir}/weights/best.pt"
+        exit(0)
+    except:
+        count += 1
+        print(f"sleeping. # of retries: {count}")
+        time.sleep(60)
+        pass
 
 # Evaluate the model's performance on the validation set
 # results = model.val()

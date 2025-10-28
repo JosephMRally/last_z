@@ -37,6 +37,7 @@ class StrategyContext:
 			self.last_action_timestamp = datetime.datetime.now()
 			common.kill(device_id)
 			self.strategy = None
+			return
 
 		if self.strategy == None:
 			# TODO: make this dynamic
@@ -54,6 +55,7 @@ class StrategyContext:
 				self.strategy = BuildStrategy()
 
 		if self.strategy != None:	
+			print(f"strategy: {self.strategy}")
 			self.strategy.perform(objs)
 			if self.strategy.isComplete(objs):
 				self.strategy = None
@@ -86,8 +88,7 @@ class LoadingStrategy(ABC):
 		elif "exit" in objs:
 			tap_this("exit")
 			self.complete = False
-		elif "world" in objs:
-			tap_this("world")
+		else:
 			self.complete = True
 
 	def isComplete(self, objs):
@@ -98,24 +99,27 @@ class CompleteStrategy(ABC):
 	next_allowed_complete_timestamp = datetime.datetime.now()
 
 	def isReady(objs):
-		# collect at least once every 8 hours
-		if CompleteStrategy.next_allowed_complete_timestamp + datetime.timedelta(hours = 8) < datetime.datetime.now():
+		# collect at least once every 1 hours
+		if CompleteStrategy.next_allowed_complete_timestamp + datetime.timedelta(hours = .25) < datetime.datetime.now():
 			CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now()
 			CompleteStrategy.complete_count = 0
-			return True
+			return False
 
 		# congrats page
-		if "complete" in objs and "world" not in objs and "headquarters" not in objs:
+		# TODO: wrong
+		if "complete - rss" in objs and "world" not in objs and "headquarters" not in objs:
 			return True
 
-		if "complete" in objs and "world" in objs and CompleteStrategy.complete_count < 10:
+		if "complete - rss" in objs and "world" in objs and CompleteStrategy.complete_count < 10:
+			return True
+		if "complete - rss" in objs and 'build icon - can' in objs:
 			return True
 
 		return False
 
 	def perform(self, objs):
-		print(f"complete: {CompleteStrategy.complete_count}")
-		tap_this("complete")
+		print(f"complete - rss: {CompleteStrategy.complete_count}")
+		tap_this("complete - rss")
 		CompleteStrategy.complete_count += 1
 
 	def isComplete(self, objs):
@@ -217,23 +221,35 @@ class BuildStrategy(ABC):
 
 	def __init__(self):
 		self.strategy_start_time = datetime.datetime.now()
+		self.state = ""
 
 	def perform(self, objs):
 		print("building")
 		if self.strategy_start_time + datetime.timedelta(minutes=1) < datetime.datetime.now():
 			print("ran out of time")
-			self.state = "complete"
-		elif 'build icon - can' in objs and "ready to build" in objs and "upgrade" not in objs:
-			tap_this("ready to build")
-			self.state = "building"
-		elif self.state == "building" and "upgrade" in objs:
-			tap_this("upgrade")
-		elif "go" in objs:
-			tap_this("go")
-			self.state = "complete"
-		elif "exit" in objs:
-			tap_this("exit")
-			self.state = "complete"
+			if "exit" in objs:
+				tap_this("exit")
+			else:
+				self.state = "complete"
+		else:
+			if 'build icon - can' in objs and "ready to build" in objs and "upgrade" not in objs:
+				# adjust where to tap, it's not on the middle of the icon
+				import random
+				xyxy = random.sample(objs['ready to build'], 1)
+				a = xyxy[0][0]
+				xyxy = [a[0]+20, a[1]-20, a[2]+20, a[3]-20]
+				objs['ready to build'] = [[xyxy]]
+				print(objs['ready to build'])
+				tap_this("ready to build")
+				self.state = "building"
+			if self.state == "building":
+				if "upgrade" in objs:
+					tap_this("upgrade")
+				if "confirm" in objs:
+					tap_this("confirm")
+					self.state = "complete"
+				elif "replenish all" in objs:
+					tap_this("replenish all")
 
 	def isComplete(self, objs):
 		return hasattr(self, "state") and self.state == "complete"
@@ -257,7 +273,7 @@ model = YOLO(model_loc)
 print(common.get_device_list())
 
 # setup config values
-debug = True
+debug = False
 device_id = "R9YT200S1PM"
 has_gas = True
 

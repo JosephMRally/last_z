@@ -30,15 +30,17 @@ project_versions = {x['id']: x for x in project_versions}
 project_versions = {int(k.split("/")[-1]): v for k,v in project_versions.items()}
 latest_version = max(project_versions.keys())
 version = project.version(latest_version)
-print(f"downloading version: {version}")
 
-# d/l
+# d/l if new
+if os.path.exists(f"last_z-{latest_version}"):
+    print("version already downloaded.")
+    exit(0)
+
+print(f"downloading version: {version}")
 dataset = version.download("yolov11")
 
 # move files to correct location
 shutil.rmtree("./datasets/last_z", ignore_errors=True)
-os.makedirs(f"./datasets/last_z", exist_ok=True)
-shutil.move(f"last_z-{latest_version}", "./datasets/")
-os.rename(f"./datasets/last_z-{latest_version}", "./datasets/last_z")
+shutil.copytree(f"last_z-{latest_version}", "./datasets/last_z")
 shutil.copytree("./datasets/last_z/train", "./datasets/last_z/valid")
 shutil.copytree("./datasets/last_z/train", "./datasets/last_z/test")

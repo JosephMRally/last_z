@@ -47,7 +47,12 @@ def find_directories_os(path):
 
 def find_most_recent_model_directory():
     d = find_directories_os("./runs/detect/")
-    d = [int(x[5:]) for x in d if len(x)>5 and x.startswith("train")]
-    return f"./runs/detect/train{max(d)}"
+    d = [x.replace("train","") for x in d]
+    if len(d)==0:
+        return None
+    d = [int(x) for x in d if x!=""]
+    d = max(d) if len(d)>0 else ""
+    print(d)
+    return f"./runs/detect/train{d}"
 
 
