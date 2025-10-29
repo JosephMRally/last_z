@@ -2,6 +2,7 @@ import os
 import subprocess
 import datetime
 
+
 def get_screenshot(device_id, path_and_filename = "screenshots/screenshot_{n}.png"):
     n = datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S_%f")
     path_and_filename = path_and_filename.format(**{"n":n})
@@ -22,20 +23,42 @@ def get_device_list():
     return devices
 # print(get_device_list())
 
+# declaration of common methods
+middle_of_xyxy = lambda xyxy : (xyxy[0]+(xyxy[2]-xyxy[0])/2, xyxy[1]+(xyxy[3]-xyxy[1])/2)
+translate_to_display = lambda x,y: (1200/1024*x, 1920/1024*y)
+def tap_this(objs, obj_dict_entry):
+    a = objs[obj_dict_entry]
+    a = a[0][0]
+    x,y = middle_of_xyxy(a)
+    x,y = translate_to_display(x,y)
+    tap(objs["device_id"], x,y)
+
 def tap(device_id, x, y):
     cmd = f"adb -s {device_id} shell input tap {x} {y}"
     print(cmd)
     subprocess.run(cmd, shell=True)
 
-def swipe(device_id, direction):
-    cmd = f"adb -s {device_id} shell input touchscreen swipe 300 1000 300 500"
+def swipe_direction(objs, direction):
+    if direction == "left":
+        xyxy = [[800, 500, 300, 500]]
+    elif direction == "right":
+        xyxy = [[300, 500, 800, 500]]
+    elif direction == "down":
+        xyxy = [[500, 300, 500, 800]]
+    elif direction == "up":
+        xyxy = [[500, 800, 500, 300]]
+    swipe(objs, xyxy)
+
+def swipe(objs, xyxy):
+    device_id = objs['device_id']
+    xyxy = xyxy[0]
+    x1,y1,x2,y2 = xyxy
+    cmd = f"adb -s {device_id} shell input touchscreen swipe {x1} {y1} {x2} {y2}"
     subprocess.run(cmd, shell=True)
-# swipe("R9YT200S1PM", "up")
 
 def kill(device_id):
     cmd = f"adb -s {device_id} shell am force-stop com.readygo.barrel.gp"
     subprocess.run(cmd, shell=True)
-# kill()
 
 def find_directories_os(path):
     directories = []

@@ -10,7 +10,7 @@ from ultralytics import YOLO
 import yaml
 import datetime
 from roboflow import Roboflow
-import cmd_for_adb as common
+import last_z.cmd_for_adb as common
 import shutil
 import os
 

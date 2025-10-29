@@ -10,254 +10,19 @@ from abc import ABC, abstractmethod
 from ultralytics import YOLO
 import yaml
 import time
-import cmd_for_adb as common
 import cv2
 import subprocess
 from ultralytics.utils.plotting import Annotator
 import numpy as np
 from collections import defaultdict
-import redis
+# import redis
 import json
 import datetime
 import random
 import pygame
 import os
-
-class StrategyContext:
-
-	def __init__(self):
-		self.strategy = None
-		self.last_action_timestamp = datetime.datetime.now()
-
-	def pick_strategy(self, objs):
-		# TODO: should this be moved to strategy?
-		if self.last_action_timestamp+datetime.timedelta(minutes = 10) < datetime.datetime.now():
-			# reset state, something went wrong
-			print("reset", str(datetime.datetime.now()))
-			self.last_action_timestamp = datetime.datetime.now()
-			common.kill(device_id)
-			self.strategy = None
-			return
-
-		if self.strategy == None:
-			# TODO: make this dynamic
-			if LoadingStrategy.isReady(objs):
-				self.strategy = LoadingStrategy()
-			elif CompleteStrategy.isReady(objs):
-				self.strategy = CompleteStrategy()
-			elif ExitStrategy.isReady(objs):
-				self.strategy = ExitStrategy()
-			elif HelpOthersStrategy.isReady(objs):
-				self.strategy = HelpOthersStrategy()
-			#elif BoomerStrategy.isReady(objs):
-			#	self.strategy = BoomerStrategy()
-			elif BuildStrategy.isReady(objs):
-				self.strategy = BuildStrategy()
-
-		if self.strategy != None:	
-			print(f"strategy: {self.strategy}")
-			self.strategy.perform(objs)
-			if self.strategy.isComplete(objs):
-				self.strategy = None
-				self.last_action_timestamp = datetime.datetime.now()
-
-class SortingStrategy(ABC):
-	@abstractmethod
-	def isReady(self, objs):
-		pass
-	@abstractmethod
-	def perform(self, objs):
-		pass
-	@abstractmethod
-	def isComplete(self, objs):
-		pass
-
-class LoadingStrategy(ABC):
-	def isReady(objs):
-		return "loading" in objs or "last z icon" in objs
-
-	def perform(self, objs):
-		if "last z icon" in objs:
-			print("last z icon")
-			time.sleep(60 * 1)
-			tap_this("last z icon")
-			self.complete = False
-		elif "loading" in objs:
-			print("loading")
-			self.complete = False
-		elif "exit" in objs:
-			tap_this("exit")
-			self.complete = False
-		else:
-			self.complete = True
-
-	def isComplete(self, objs):
-		return 	self.complete
-
-class CompleteStrategy(ABC):
-	complete_count = 0
-	next_allowed_complete_timestamp = datetime.datetime.now()
-
-	def isReady(objs):
-		# collect at least once every 1 hours
-		if CompleteStrategy.next_allowed_complete_timestamp + datetime.timedelta(hours = .25) < datetime.datetime.now():
-			CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now()
-			CompleteStrategy.complete_count = 0
-			return False
-
-		# congrats page
-		# TODO: wrong
-		if "complete - rss" in objs and "world" not in objs and "headquarters" not in objs:
-			return True
-
-		if "complete - rss" in objs and "world" in objs and CompleteStrategy.complete_count < 10:
-			return True
-		if "complete - rss" in objs and 'build icon - can' in objs:
-			return True
-
-		return False
-
-	def perform(self, objs):
-		print(f"complete - rss: {CompleteStrategy.complete_count}")
-		tap_this("complete - rss")
-		CompleteStrategy.complete_count += 1
-
-	def isComplete(self, objs):
-		return True
-
-	def reset():
-		CompleteStrategy.complete_count = 0
-		CompleteStrategy.next_allowed_complete_timestamp = datetime.datetime.now()
-
-class HelpOthersStrategy(ABC):
-	help_others_counter = 0
-
-	def isReady(objs):
-		return "help others" in objs
-
-	def perform(self, objs):
-		print("help others")
-		tap_this("help others")
-		HelpOthersStrategy.help_others_counter += 1
-		print(f"help others {HelpOthersStrategy.help_others_counter} times")
-
-	def isComplete(self, objs):
-		return True
-
-class ExitStrategy(ABC):
-	# this one should not be needed, something went wrong
-	def isReady(objs):
-		return "exit" in objs and len(objs)==1
-
-	def perform(self, objs):
-		print("exit")
-		tap_this("exit")
-
-	def isComplete(self, objs):
-		return True
-
-class BoomerStrategy(ABC):
-	boomer_count = 0
-	next_allowed_boomer_timestamp = datetime.datetime.now()
-
-	def isReady(objs):
-		# reset boomers if we have done to many
-		if BoomerStrategy.boomer_count == 10:
-			BoomerStrategy.next_allowed_boomer_timestamp = datetime.datetime.now() + datetime.timedelta(minutes = 1)
-			boomer_count = 0
-			return False
-
-		return (BoomerStrategy.next_allowed_boomer_timestamp < datetime.datetime.now()
-			and "headquarters" in objs 
-			and "hero 1 sleeping" in objs 
-			and "magnifying glass" in objs)
-
-	def perform(self, objs):
-		if "headquarters" in objs and "hero 1 sleeping" in objs and "magnifying glass" in objs:
-			print("boomer starting")
-			last_action_timestamp = datetime.datetime.now()
-			tap_this("magnifying glass")
-			state_of_action = "boomer starting"
-		elif "boomer selected" in objs:
-			print("boomer selected: ", end="")
-			tap_this("boomer selected")
-			state_of_action = "boomer selected"
-		elif "search" in objs:
-			print("boomer search: ", end="")
-			tap_this("search")
-			state_of_action = "boomer search"
-		elif "team up" in objs:
-			print("boomer team up: ", end="")
-			tap_this("team up")
-			state_of_action = "boomer team up"
-		elif "march" in objs:
-			print("boomer march: ", end="")
-			tap_this("march")
-			state_of_action = "boomer marching"
-			boomer_counter += 1
-		elif "no gas" in objs:
-			print("no gas")
-			has_gas = False
-			state_of_action = None
-		elif "hero 1 sleeping" in objs:
-			print("boomer completed")
-			last_action_timestamp = datetime.datetime.now()
-			state_of_action = None
-		elif not has_gas and "headquarters" not in objs:
-			objs["corner"] = [[[0, 0, 0, 0]]]
-			tap_this("corner")
-
-	def isComplete(self, objs):
-		return False
-
-class BuildStrategy(ABC):
-	build_counter = 0
-
-	def isReady(objs):
-		res = 'build icon - can' in objs and "ready to build" in objs
-		if res:
-			CompleteStrategy.reset() # TODO: mediator design pattern
-		return res
-
-	def __init__(self):
-		self.strategy_start_time = datetime.datetime.now()
-		self.state = ""
-
-	def perform(self, objs):
-		print("building")
-		if self.strategy_start_time + datetime.timedelta(minutes=1) < datetime.datetime.now():
-			print("ran out of time")
-			if "exit" in objs:
-				tap_this("exit")
-			else:
-				self.state = "complete"
-		else:
-			if 'build icon - can' in objs and "ready to build" in objs and "upgrade" not in objs:
-				# adjust where to tap, it's not on the middle of the icon
-				import random
-				xyxy = random.sample(objs['ready to build'], 1)
-				a = xyxy[0][0]
-				xyxy = [a[0]+20, a[1]-20, a[2]+20, a[3]-20]
-				objs['ready to build'] = [[xyxy]]
-				print(objs['ready to build'])
-				tap_this("ready to build")
-				self.state = "building"
-			if self.state == "building":
-				if "upgrade" in objs:
-					tap_this("upgrade")
-				if "confirm" in objs:
-					tap_this("confirm")
-					self.state = "complete"
-				elif "replenish all" in objs:
-					tap_this("replenish all")
-
-	def isComplete(self, objs):
-		return hasattr(self, "state") and self.state == "complete"
-
-
-
-
-
+from last_z.strategyContext import StrategyContext
+import last_z.cmd_for_adb as common
 
 pygame.init()
 
@@ -273,19 +38,9 @@ model = YOLO(model_loc)
 print(common.get_device_list())
 
 # setup config values
-debug = False
 device_id = "R9YT200S1PM"
+debug = False
 has_gas = True
-
-# declaration of common methods
-middle_of_xyxy = lambda xyxy : (xyxy[0]+(xyxy[2]-xyxy[0])/2, xyxy[1]+(xyxy[3]-xyxy[1])/2)
-translate_to_display = lambda x,y: (1200/1024*x, 1920/1024*y)
-def tap_this(obj_dict_entry):
-	a = objs[obj_dict_entry]
-	a = a[0][0]
-	x,y = middle_of_xyxy(a)
-	x,y = translate_to_display(x,y)
-	common.tap(device_id, x,y)
 
 # strategy design pattern
 ctx = StrategyContext()
@@ -316,7 +71,7 @@ while True:
 			c_name = model.names[c]
 			objs[c_name].append(b)
 	objs = dict(objs)
-
+	objs["device_id"] = device_id
 
 	print("")
 	print(datetime.datetime.now())

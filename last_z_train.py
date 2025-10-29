@@ -11,7 +11,7 @@ import yaml
 import datetime
 import os
 import shutil
-import cmd_for_adb as common
+import last_z.cmd_for_adb as common
 import time
 import subprocess
 

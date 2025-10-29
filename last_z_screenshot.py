@@ -9,7 +9,7 @@ Copyright: (c) 2025 by Joseph Miguel<br/>
 from ultralytics import YOLO
 import yaml
 import time
-from cmd_for_adb import *
+from last_z.cmd_for_adb import *
 import cv2
 import subprocess
 from ultralytics.utils.plotting import Annotator
