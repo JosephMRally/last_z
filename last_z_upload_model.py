@@ -12,7 +12,7 @@ import datetime
 import os
 import shutil
 from roboflow import Roboflow
-import cmd_for_adb as common
+import last_z.cmd_for_adb as common
 
 data_loc = "datasets/last_z"
 yaml_loc = f"{data_loc}/data.yaml"

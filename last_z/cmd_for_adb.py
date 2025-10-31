@@ -10,7 +10,6 @@ def get_screenshot(device_id, path_and_filename = "screenshots/screenshot_{n}.pn
     process = subprocess.Popen(cmd, shell=True)
     process.wait()
     return path_and_filename
-# get_screenshot("R9YT200S1PM")
 
 def get_device_list():
     cmd = "adb devices"
@@ -21,7 +20,6 @@ def get_device_list():
             device_id = line.split('\t')[0]
             devices.append(device_id)
     return devices
-# print(get_device_list())
 
 # declaration of common methods
 middle_of_xyxy = lambda xyxy : (xyxy[0]+(xyxy[2]-xyxy[0])/2, xyxy[1]+(xyxy[3]-xyxy[1])/2)
@@ -31,9 +29,10 @@ def tap_this(objs, obj_dict_entry):
     a = a[0][0]
     x,y = middle_of_xyxy(a)
     x,y = translate_to_display(x,y)
-    tap(objs["device_id"], x,y)
+    tap(objs, x,y)
 
-def tap(device_id, x, y):
+def tap(objs, x, y):
+    device_id = objs["_settings.device_id"]
     cmd = f"adb -s {device_id} shell input tap {x} {y}"
     print(cmd)
     subprocess.run(cmd, shell=True)
@@ -50,7 +49,7 @@ def swipe_direction(objs, direction):
     swipe(objs, xyxy)
 
 def swipe(objs, xyxy):
-    device_id = objs['device_id']
+    device_id = objs['_settings.device_id']
     xyxy = xyxy[0]
     x1,y1,x2,y2 = xyxy
     cmd = f"adb -s {device_id} shell input touchscreen swipe {x1} {y1} {x2} {y2}"

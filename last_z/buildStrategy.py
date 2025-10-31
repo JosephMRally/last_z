@@ -30,7 +30,7 @@ class BuildStrategy(ABC):
 				import random
 				xyxy = random.sample(objs['ready to build'], 1)
 				a = xyxy[0][0]
-				xyxy = [a[0]+20, a[1]-20, a[2]+20, a[3]-20]
+				xyxy = [a[0]+40, a[1]-40, a[2]+40, a[3]-40]
 				objs['ready to build'] = [[xyxy]]
 				print(objs['ready to build'])
 				tap_this(objs, "ready to build")

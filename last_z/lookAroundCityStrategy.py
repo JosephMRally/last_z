@@ -6,8 +6,7 @@ import random
 
 class LookAroundCityStrategy(ABC):
 	def isReady(objs):
-		x = [x for x in objs if x.startswith("complete -")]
-		return "world" in objs or len(x)>0 or "ready to build" in objs
+		return "world" in objs and "build icon - can" in objs
 
 	def __init__(self):
 		self.direction = random.choice(range(0,4))

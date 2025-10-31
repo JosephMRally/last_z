@@ -71,7 +71,7 @@ while True:
 			c_name = model.names[c]
 			objs[c_name].append(b)
 	objs = dict(objs)
-	objs["device_id"] = device_id
+	objs["_settings.device_id"] = device_id
 
 	print("")
 	print(datetime.datetime.now())

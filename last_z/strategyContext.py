@@ -21,7 +21,7 @@ class StrategyContext:
 			# reset state, something went wrong
 			print("reset", str(datetime.datetime.now()))
 			self.last_action_timestamp = datetime.datetime.now()
-			kill(objs["device_id"])
+			kill(objs["_settings.device_id"])
 			self.strategy = None
 			return
 

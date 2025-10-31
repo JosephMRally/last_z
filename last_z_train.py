@@ -44,7 +44,7 @@ model = YOLO(model_loc)
 count=0
 while True:
     try:
-        results = model.train(data=yaml_loc, epochs=10000, imgsz=1024, device="mps", patience=300)
+        results = model.train(data=yaml_loc, epochs=10000, imgsz=1024, device="mps", patience=100)
         save_dir = str(results.save_dir)
         model_loc = f"{save_dir}/weights/best.pt"
         exit(0)
