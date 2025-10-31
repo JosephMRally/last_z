@@ -2,27 +2,22 @@
 Copyright: (c) 2025 by Joseph Miguel<br/>
            NO WARRANTY, EXPRESS OR IMPLIED. AS-IS.  USE AT-YOUR-OWN-RISK.
 
-           LICENCE TO USE - FREE with one condition:
+           LICENSE TO USE - FREE with one condition:
            GIVE ME SOME CREDIT IF YOU USE IT TO PLAY THE GAME
-           139 - T A C O    418 - BORG QUEEN 001 
+           139 - T A C O    418 - BORG QUEEN 001
 """
-from abc import ABC, abstractmethod
-from ultralytics import YOLO
-import yaml
-import time
-import cv2
-import subprocess
-from ultralytics.utils.plotting import Annotator
-import numpy as np
-from collections import defaultdict
+
 # import redis
-import json
 import datetime
-import random
+import time
+from collections import defaultdict
+
+import cv2
 import pygame
-import os
-from last_z.strategyContext import StrategyContext
+
 import last_z.cmd_for_adb as common
+from last_z.strategyContext import StrategyContext
+from ultralytics import YOLO
 
 pygame.init()
 
@@ -47,42 +42,40 @@ ctx = StrategyContext()
 
 # infinite loop
 while True:
-	# first take a screenshot
-	path_and_filename = common.get_screenshot(device_id, "screenshots/screenshot.png")
+    # first take a screenshot
+    path_and_filename = common.get_screenshot(device_id, "screenshots/screenshot.png")
 
-	# resize
-	img = cv2.imread(path_and_filename)
-	img_2 = cv2.resize(img, (1024, 1024)) # YOLO default image size is 640
-	cv2.imwrite(path_and_filename, img_2)
+    # resize
+    img = cv2.imread(path_and_filename)
+    img_2 = cv2.resize(img, (1024, 1024))  # YOLO default image size is 640
+    cv2.imwrite(path_and_filename, img_2)
 
-	# Perform object detection on an image using the model
-	results = model.predict(path_and_filename, 
-		show=debug, show_boxes=True, verbose=False, 
-		imgsz=1024, conf=0.80)
+    # Perform object detection on an image using the model
+    results = model.predict(path_and_filename, show=debug, show_boxes=True, verbose=False, imgsz=1024, conf=0.80)
 
-	# extract the results
-	objs = defaultdict(list)
-	for r in results:
-		boxes = r.boxes
-		for box in boxes:
-			b = box.xyxy.tolist()
-			b = [[int(a) for a in x] for x in b]  # xyxy convert to int
-			c = int(box.cls)
-			c_name = model.names[c]
-			objs[c_name].append(b)
-	objs = dict(objs)
-	objs["_settings.device_id"] = device_id
+    # extract the results
+    objs = defaultdict(list)
+    for r in results:
+        boxes = r.boxes
+        for box in boxes:
+            b = box.xyxy.tolist()
+            b = [[int(a) for a in x] for x in b]  # xyxy convert to int
+            c = int(box.cls)
+            c_name = model.names[c]
+            objs[c_name].append(b)
+    objs = dict(objs)
+    objs["_settings.device_id"] = device_id
 
-	print("")
-	print(datetime.datetime.now())
-	ke = list(objs.keys())
-	ke.sort()
-	for k in ke:
-		print(k, objs[k])
+    print("")
+    print(datetime.datetime.now())
+    ke = list(objs.keys())
+    ke.sort()
+    for k in ke:
+        print(k, objs[k])
 
-	ctx.pick_strategy(objs)
-	
-	"""
+    ctx.pick_strategy(objs)
+
+    """
 
 	elif "attack" in objs:
 		print("under attack")
@@ -102,32 +95,32 @@ while True:
 		last_action_timestamp = datetime.datetime.now()
 	"""
 
-	"""
+    """
 	elif state_of_action == None and "ready to build" in objs:
 		print("ready to build")
 		tap_this("ready to build")
 		last_action_timestamp = datetime.datetime.now()
 	"""
 
-	"""
+    """
 	elif state_of_action == None and "wanted" in objs:
 		print("wanted")
 		tap_this("wanted")
 		last_action_timestamp = datetime.datetime.now()
 	"""
 
-	"""
+    """
 	elif state_of_action == None and "radar" in objs:
 		print("radar")
 		tap_this("radar")
 		last_action_timestamp = datetime.datetime.now()
 	"""
 
-	"""
+    """
 	elif state_of_action == None and "event calendar" in objs:
 		print("event calendar")
 		tap_this("event calendar")
 		last_action_timestamp = datetime.datetime.now()
 	"""
 
-	time.sleep(4)
+    time.sleep(4)

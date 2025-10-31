@@ -1,7 +1,8 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+from __future__ import annotations
 
 from copy import copy
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 
@@ -36,7 +37,7 @@ class ClassificationTrainer(BaseTrainer):
         preprocess_batch: Preprocess a batch of images and classes.
         progress_string: Return a formatted string showing training progress.
         get_validator: Return an instance of ClassificationValidator.
-        label_loss_items: Return a loss dict with labelled training loss items.
+        label_loss_items: Return a loss dict with labeled training loss items.
         plot_metrics: Plot metrics from a CSV file.
         final_eval: Evaluate trained model and save validation results.
         plot_training_samples: Plot training samples with their annotations.
@@ -49,7 +50,7 @@ class ClassificationTrainer(BaseTrainer):
         >>> trainer.train()
     """
 
-    def __init__(self, cfg=DEFAULT_CFG, overrides: Optional[Dict[str, Any]] = None, _callbacks=None):
+    def __init__(self, cfg=DEFAULT_CFG, overrides: dict[str, Any] | None = None, _callbacks=None):
         """
         Initialize a ClassificationTrainer object.
 
@@ -162,7 +163,7 @@ class ClassificationTrainer(BaseTrainer):
                 self.model.transforms = loader.dataset.torch_transforms
         return loader
 
-    def preprocess_batch(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def preprocess_batch(self, batch: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Preprocess a batch of images and classes."""
         batch["img"] = batch["img"].to(self.device)
         batch["cls"] = batch["cls"].to(self.device)
@@ -185,9 +186,9 @@ class ClassificationTrainer(BaseTrainer):
             self.test_loader, self.save_dir, args=copy(self.args), _callbacks=self.callbacks
         )
 
-    def label_loss_items(self, loss_items: Optional[torch.Tensor] = None, prefix: str = "train"):
+    def label_loss_items(self, loss_items: torch.Tensor | None = None, prefix: str = "train"):
         """
-        Return a loss dict with labelled training loss items tensor.
+        Return a loss dict with labeled training loss items tensor.
 
         Args:
             loss_items (torch.Tensor, optional): Loss tensor items.
@@ -220,7 +221,7 @@ class ClassificationTrainer(BaseTrainer):
                     self.metrics.pop("fitness", None)
                     self.run_callbacks("on_fit_epoch_end")
 
-    def plot_training_samples(self, batch: Dict[str, torch.Tensor], ni: int):
+    def plot_training_samples(self, batch: dict[str, torch.Tensor], ni: int):
         """
         Plot training samples with their annotations.
 

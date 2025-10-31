@@ -2,16 +2,15 @@
 Copyright: (c) 2025 by Joseph Miguel<br/>
            NO WARRANTY, EXPRESS OR IMPLIED. AS-IS.  USE AT-YOUR-OWN-RISK.
 
-           LICENCE TO USE - FREE with one condition:
+           LICENSE TO USE - FREE with one condition:
            GIVE ME SOME CREDIT IF YOU USE IT TO PLAY THE GAME
-           139 - T A C O    418 - BORG QUEEN 001 
+           139 - T A C O    418 - BORG QUEEN 001
 """
-from ultralytics import YOLO
-import yaml
+
 import datetime
-import os
-import shutil
+
 from roboflow import Roboflow
+
 import last_z.cmd_for_adb as common
 
 data_loc = "datasets/last_z"
@@ -32,5 +31,5 @@ workspace = rf.workspace("lastz-u33ao")
 # project_versions = {x['id']: x for x in project_versions}
 # project_versions = {k.split("/")[-1]: v for k,v in project_versions.items()}
 
-model_name=datetime.datetime.now().strftime("z--%Y-%m-%d--%H-%M-%S")
+model_name = datetime.datetime.now().strftime("z--%Y-%m-%d--%H-%M-%S")
 workspace.deploy_model(model_type="yolov11", model_path=save_dir, model_name=model_name, project_ids=["last_z-afohb"])
