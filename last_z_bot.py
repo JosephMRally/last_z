@@ -66,6 +66,24 @@ while True:
     objs = dict(objs)
     objs["_settings.device_id"] = device_id
 
+    # determine which view is being shown
+    if "world" in objs and "hero" in objs and "magnifying glass":
+    	objs["__current_view"] = "headquarters"
+    elif "headquarters" in objs and "hero" in objs and "magnifying glass":
+    	objs["__current_view"] = "world"
+    elif "label - requirements" in objs and "upgrade" in objs:
+    	objs["__current_view"] = "build"
+    elif "label - get more" in objs and "replenish all" in objs:
+    	objs["__current_view"] = "build"
+    elif "label - warehouse" in objs:
+    	objs["__current_view"] = "warehouse"
+    elif "label - bounty mission" in objs:
+    	objs["__current_view"] = "bounty mission"
+    elif "label - hospital" in objs:
+    	objs["__current_view"] = "hospital"
+    elif "last z icon" in objs or "loading" in objs:
+    	objs["__current_view"] = "loading"
+
     print("")
     print(datetime.datetime.now())
     ke = list(objs.keys())

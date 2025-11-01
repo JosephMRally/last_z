@@ -24,7 +24,11 @@ class StrategyContext:
             self.strategy = None
             return
 
+
+
         if self.strategy is None:
+        	if "__current_view"
+
             # TODO: make this dynamic
             if LoadingStrategy.isReady(objs):
                 self.strategy = LoadingStrategy()
