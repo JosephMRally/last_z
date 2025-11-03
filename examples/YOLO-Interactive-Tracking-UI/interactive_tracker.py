@@ -53,8 +53,7 @@ selected_center = None
 
 
 def get_center(x1: int, y1: int, x2: int, y2: int) -> tuple[int, int]:
-    """
-    Calculate the center point of a bounding box.
+    """Calculate the center point of a bounding box.
 
     Args:
         x1 (int): Top-left X coordinate.
@@ -70,8 +69,7 @@ def get_center(x1: int, y1: int, x2: int, y2: int) -> tuple[int, int]:
 
 
 def extend_line_from_edge(mid_x: int, mid_y: int, direction: str, img_shape: tuple[int, int, int]) -> tuple[int, int]:
-    """
-    Calculate the endpoint to extend a line from the center toward an image edge.
+    """Calculate the endpoint to extend a line from the center toward an image edge.
 
     Args:
         mid_x (int): X-coordinate of the midpoint.
@@ -96,8 +94,7 @@ def extend_line_from_edge(mid_x: int, mid_y: int, direction: str, img_shape: tup
 
 
 def draw_tracking_scope(im, bbox: tuple, color: tuple) -> None:
-    """
-    Draw tracking scope lines extending from the bounding box to image edges.
+    """Draw tracking scope lines extending from the bounding box to image edges.
 
     Args:
         im (np.ndarray): Image array to draw on.
@@ -116,8 +113,7 @@ def draw_tracking_scope(im, bbox: tuple, color: tuple) -> None:
 
 
 def click_event(event: int, x: int, y: int, flags: int, param) -> None:
-    """
-    Handle mouse click events to select an object for focused tracking.
+    """Handle mouse click events to select an object for focused tracking.
 
     Args:
         event (int): OpenCV mouse event type.
