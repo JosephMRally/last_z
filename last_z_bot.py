@@ -65,80 +65,18 @@ while True:
             objs[c_name].append(b)
     objs = dict(objs)
     objs["_settings.device_id"] = device_id
-
-    # determine which view is being shown
-    if "world" in objs and "hero" in objs and "magnifying glass":
-    	objs["__current_view"] = "headquarters"
-    elif "headquarters" in objs and "hero" in objs and "magnifying glass":
-    	objs["__current_view"] = "world"
-    elif "label - requirements" in objs and "upgrade" in objs:
-    	objs["__current_view"] = "build"
-    elif "label - get more" in objs and "replenish all" in objs:
-    	objs["__current_view"] = "build"
-    elif "label - warehouse" in objs:
-    	objs["__current_view"] = "warehouse"
-    elif "label - bounty mission" in objs:
-    	objs["__current_view"] = "bounty mission"
-    elif "label - hospital" in objs:
-    	objs["__current_view"] = "hospital"
-    elif "last z icon" in objs or "loading" in objs:
-    	objs["__current_view"] = "loading"
-
-    print("")
-    print(datetime.datetime.now())
-    ke = list(objs.keys())
-    ke.sort()
-    for k in ke:
-        print(k, objs[k])
+    objs["_timestamp"] = datetime.datetime.now()
 
     ctx.pick_strategy(objs)
 
-    """
+    with open("log.txt", "a") as f:
+        print("")
+        f.write("\n\n")
+        print(datetime.datetime.now())
+        ke = list(objs.keys())
+        ke.sort()
+        for k in ke:
+            print(k, objs[k])
+            f.write(f"{k}: {objs[k]}\n")
 
-	elif "attack" in objs:
-		print("under attack")
-		pygame.mixer.music.load("alarm_sound.mp3") 
-		pygame.mixer.music.play(loops=0)		
-	elif "medic" in objs:
-		print("medic")
-		tap_this("medic")
-	elif "exit" in objs and len(objs)==1:
-		print("objs")
-		tap_this("exit")	
-
-
-	elif state_of_action == None and "complete" in objs:
-		print("complete")
-		tap_this("complete")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "ready to build" in objs:
-		print("ready to build")
-		tap_this("ready to build")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "wanted" in objs:
-		print("wanted")
-		tap_this("wanted")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "radar" in objs:
-		print("radar")
-		tap_this("radar")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "event calendar" in objs:
-		print("event calendar")
-		tap_this("event calendar")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    time.sleep(4)
+        time.sleep(4)

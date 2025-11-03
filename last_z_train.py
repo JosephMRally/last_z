@@ -33,9 +33,9 @@ process = subprocess.Popen(cmd, shell=True)
 process.wait()
 
 # load up the labels
-with open(yaml_loc) as f:
-    label = yaml.safe_load(f)["names"]
-print(label)
+# with open(yaml_loc) as f:
+#    label = yaml.safe_load(f)["names"]
+# print(label)
 
 # Load a pretrained YOLO model (recommended for training)
 model = YOLO(model_loc)
@@ -44,12 +44,18 @@ model = YOLO(model_loc)
 count = 0
 while True:
     try:
-        results = model.train(data=yaml_loc, epochs=10000, imgsz=1024, device="mps", patience=100)
+        params = {
+            "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
+            "patience":100, "project":save_dir, 
+            "resume": True if save_dir else False
+        }
+        results = model.train(**params)
         save_dir = str(results.save_dir)
         model_loc = f"{save_dir}/weights/best.pt"
         exit(0)
-    except:
+    except Exception as e:
         count += 1
+        print(e)
         print(f"sleeping. # of retries: {count}")
         time.sleep(60)
         pass
