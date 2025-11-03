@@ -45,9 +45,13 @@ count = 0
 while True:
     try:
         params = {
-            "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
-            "patience":100, "project":save_dir, 
-            "resume": True if save_dir else False
+            "data": yaml_loc,
+            "epochs": 10000,
+            "imgsz": 1024,
+            "device": "mps",
+            "patience": 100,
+            "project": save_dir,
+            "resume": True if save_dir else False,
         }
         results = model.train(**params)
         save_dir = str(results.save_dir)
