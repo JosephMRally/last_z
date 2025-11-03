@@ -11,8 +11,7 @@ from .val import FastSAMValidator
 
 
 class FastSAM(Model):
-    """
-    FastSAM model interface for segment anything tasks.
+    """FastSAM model interface for segment anything tasks.
 
     This class extends the base Model class to provide specific functionality for the FastSAM (Fast Segment Anything
     Model) implementation, allowing for efficient and accurate image segmentation with optional prompting support.
@@ -52,15 +51,14 @@ class FastSAM(Model):
         texts: list | None = None,
         **kwargs: Any,
     ):
-        """
-        Perform segmentation prediction on image or video source.
+        """Perform segmentation prediction on image or video source.
 
         Supports prompted segmentation with bounding boxes, points, labels, and texts. The method packages these
         prompts and passes them to the parent class predict method for processing.
 
         Args:
-            source (str | PIL.Image | np.ndarray): Input source for prediction, can be a file path, URL, PIL image,
-                or numpy array.
+            source (str | PIL.Image | np.ndarray): Input source for prediction, can be a file path, URL, PIL image, or
+                numpy array.
             stream (bool): Whether to enable real-time streaming mode for video inputs.
             bboxes (List, optional): Bounding box coordinates for prompted segmentation in format [[x1, y1, x2, y2]].
             points (List, optional): Point coordinates for prompted segmentation in format [[x, y]].
