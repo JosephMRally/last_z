@@ -30,8 +30,7 @@ from ultralytics.utils.plotting import plot_tune_results
 
 
 class Tuner:
-    """
-    A class for hyperparameter tuning of YOLO models.
+    """A class for hyperparameter tuning of YOLO models.
 
     The class evolves YOLO model hyperparameters over a given number of iterations by mutating them according to the
     search space and retraining the model to evaluate their performance.
@@ -61,8 +60,7 @@ class Tuner:
     """
 
     def __init__(self, args=DEFAULT_CFG, _callbacks: list | None = None):
-        """
-        Initialize the Tuner with configurations.
+        """Initialize the Tuner with configurations.
 
         Args:
             args (dict): Configuration for hyperparameter evolution.
@@ -111,8 +109,7 @@ class Tuner:
     def _mutate(
         self, parent: str = "single", n: int = 5, mutation: float = 0.8, sigma: float = 0.2
     ) -> dict[str, float]:
-        """
-        Mutate hyperparameters based on bounds and scaling factors specified in `self.space`.
+        """Mutate hyperparameters based on bounds and scaling factors specified in `self.space`.
 
         Args:
             parent (str): Parent selection method: 'single' or 'weighted'.
@@ -157,8 +154,7 @@ class Tuner:
         return hyp
 
     def __call__(self, model=None, iterations: int = 10, cleanup: bool = True):
-        """
-        Execute the hyperparameter evolution process when the Tuner instance is called.
+        """Execute the hyperparameter evolution process when the Tuner instance is called.
 
         This method iterates through the number of iterations, performing the following steps in each iteration:
 
@@ -172,7 +168,7 @@ class Tuner:
             iterations (int): The number of generations to run the evolution for.
             cleanup (bool): Whether to delete iteration weights to reduce storage space used during tuning.
 
-        Note:
+        Notes:
             The method utilizes the `self.tune_csv` Path object to read and log hyperparameters and fitness scores.
             Ensure this path is set correctly in the Tuner instance.
         """
