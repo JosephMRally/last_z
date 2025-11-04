@@ -13,8 +13,7 @@ from ultralytics.utils.ops import xywh2xyxy, xyxy2xywh
 
 
 class HungarianMatcher(nn.Module):
-    """
-    A module implementing the HungarianMatcher for optimal assignment between predictions and ground truth.
+    """A module implementing the HungarianMatcher for optimal assignment between predictions and ground truth.
 
     HungarianMatcher performs optimal bipartite assignment over predicted and ground truth bounding boxes using a cost
     function that considers classification scores, bounding box coordinates, and optionally mask predictions. This is
@@ -55,8 +54,7 @@ class HungarianMatcher(nn.Module):
         alpha: float = 0.25,
         gamma: float = 2.0,
     ):
-        """
-        Initialize HungarianMatcher for optimal assignment of predicted and ground truth bounding boxes.
+        """Initialize HungarianMatcher for optimal assignment of predicted and ground truth bounding boxes.
 
         Args:
             cost_gain (Dict[str, float], optional): Dictionary of cost coefficients for different matching cost
@@ -87,8 +85,7 @@ class HungarianMatcher(nn.Module):
         masks: torch.Tensor | None = None,
         gt_mask: list[torch.Tensor] | None = None,
     ) -> list[tuple[torch.Tensor, torch.Tensor]]:
-        """
-        Compute optimal assignment between predictions and ground truth using Hungarian algorithm.
+        """Compute optimal assignment between predictions and ground truth using Hungarian algorithm.
 
         This method calculates matching costs based on classification scores, bounding box coordinates, and optionally
         mask predictions, then finds the optimal bipartite assignment between predictions and ground truth.
@@ -104,9 +101,9 @@ class HungarianMatcher(nn.Module):
             gt_mask (List[torch.Tensor], optional): Ground truth masks, each with shape (num_masks, Height, Width).
 
         Returns:
-            (List[Tuple[torch.Tensor, torch.Tensor]]): A list of size batch_size, each element is a tuple
-                (index_i, index_j), where index_i is the tensor of indices of the selected predictions (in order)
-                and index_j is the tensor of indices of the corresponding selected ground truth targets (in order).
+            (List[Tuple[torch.Tensor, torch.Tensor]]): A list of size batch_size, each element is a tuple (index_i,
+                index_j), where index_i is the tensor of indices of the selected predictions (in order) and index_j is
+                the tensor of indices of the corresponding selected ground truth targets (in order).
                 For each batch element, it holds: len(index_i) = len(index_j) = min(num_queries, num_target_boxes).
         """
         bs, nq, nc = pred_scores.shape
@@ -197,16 +194,15 @@ def get_cdn_group(
     box_noise_scale: float = 1.0,
     training: bool = False,
 ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None, dict[str, Any] | None]:
-    """
-    Generate contrastive denoising training group with positive and negative samples from ground truths.
+    """Generate contrastive denoising training group with positive and negative samples from ground truths.
 
-    This function creates denoising queries for contrastive denoising training by adding noise to ground truth
-    bounding boxes and class labels. It generates both positive and negative samples to improve model robustness.
+    This function creates denoising queries for contrastive denoising training by adding noise to ground truth bounding
+    boxes and class labels. It generates both positive and negative samples to improve model robustness.
 
     Args:
-        batch (Dict[str, Any]): Batch dictionary containing 'gt_cls' (torch.Tensor with shape (num_gts,)),
-            'gt_bboxes' (torch.Tensor with shape (num_gts, 4)), and 'gt_groups' (List[int]) indicating number of
-            ground truths per image.
+        batch (Dict[str, Any]): Batch dictionary containing 'gt_cls' (torch.Tensor with shape (num_gts,)), 'gt_bboxes'
+            (torch.Tensor with shape (num_gts, 4)), and 'gt_groups' (List[int]) indicating number of ground truths
+            per image.
         num_classes (int): Total number of object classes.
         num_queries (int): Number of object queries.
         class_embed (torch.Tensor): Class embedding weights to map labels to embedding space.
