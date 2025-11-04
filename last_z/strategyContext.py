@@ -3,7 +3,7 @@ import random
 
 from .cmd_for_adb import tap_this as common_tap_this
 from .cmd_for_adb import swipe_direction as common_swipe_direction
-from .cmd_for_adb import kill as kill
+from .cmd_for_adb import kill as common_kill
 
 from .buildStrategy import BuildStrategy
 from .completeStrategy import CompleteStrategy
@@ -55,7 +55,12 @@ class StrategyContext:
             objs["_action"] = obj_dict_entry
             common_tap_this(objs, obj_dict_entry)
         def swipe_direction(direction):
+            objs["_action"] = direction
             common_swipe_direction(objs, direction)
+        def kill(objs):
+            device_id = objs["_settings.device_id"]
+            objs["_action"] = obj_dict_entry
+            common_kill(objs)
 
         self.prior.append(objs)
 
@@ -64,7 +69,7 @@ class StrategyContext:
             # reset state, something went wrong
             print("reset", str(datetime.datetime.now()))
             self.last_action_timestamp = datetime.datetime.now()
-            kill(objs["_settings.device_id"])
+            kill(objs)
             self.strategy = None
             return
 
