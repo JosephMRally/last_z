@@ -46,7 +46,7 @@ while True:
     try:
         params = {
             "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
-            "patience":s00, "project":save_dir, 
+            "patience":200, "project":save_dir, 
             "resume": True if save_dir else False
         }
         results = model.train(**params)
