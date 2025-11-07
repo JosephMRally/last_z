@@ -38,6 +38,7 @@ class StrategyContext:
         congratulations = "congratulations"
         collect = "collect"
         medic = "medic"
+        military = "military"
 
         x = lambda key: key in objs
         l = lambda: len([x for x in objs if not x.startswith("_")])
@@ -97,9 +98,11 @@ class StrategyContext:
             c.append("requirements")
         if x("loading") or x("last z icon"):
             c.append("loading")
-        if x("exit") and len(c)==0:
+        if x("train") and x("back") and x("finish now"):
+            c.append("military")
+        if x("exit") and len(c)==0: # unknown view
             c.append("exit")
-        if x("back") and len(c)==0:
+        if x("back") and len(c)==0: # unknown view
             c.append("back")
 
         # strategy
@@ -131,12 +134,17 @@ class StrategyContext:
                 if not a:
                     tap_this(build_icon_can)
                     return
-            if x(upgrade): # TODO: is this used?
+            if x(upgrade):
                 b = lambda item: item["_action"] in [build_icon_can, "build", "upgrade"]
                 a = find_last_occurance_within_seconds(b, 60)
-                print(a)
                 if a and len(a)>0:
                     tap_this(upgrade)
+                    return
+            if x(military):
+                b = lambda item: item["_action"] == military
+                a = find_last_occurance_within_seconds(b, 60)
+                if not a:
+                    tap_this(military)
                     return
             if x(free_gas):
                 tap_this(free_gas)
@@ -177,6 +185,11 @@ class StrategyContext:
                 tap_this("last z icon")
             elif x("loading"):
                 pass
+        if "military" in c:
+            if x("train"):
+                tap_this("train")
+            elif x("back"):
+                tap_this("back")
         if "exit" in c:
             tap_this("exit")
             return
