@@ -20,11 +20,12 @@ yaml_loc = f"{data_loc}/data.yaml"
 
 # what pre-trained model should be continue training from
 # adding/changing classes could require making a new model
-save_dir = common.find_most_recent_model_directory()
-if not save_dir:
-    model_loc = "yolo11n.pt"  # to start training from scratch
-else:
-    model_loc = f"{save_dir}/weights/best.pt"
+#save_dir = common.find_most_recent_model_directory()
+save_dir = "/runs/detect/train"
+#if not save_dir:
+model_loc = "yolo11n.pt"  # to start training from scratch
+#else:
+#    model_loc = f"{save_dir}/weights/best.pt"
 print(f"loading model at: {model_loc}")
 
 # download latest version
@@ -47,7 +48,7 @@ while True:
         params = {
             "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
             "patience":200, "project":save_dir, 
-            "resume": True if save_dir else False
+            "resume": True
         }
         results = model.train(**params)
         save_dir = str(results.save_dir)
