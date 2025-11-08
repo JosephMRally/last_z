@@ -1,5 +1,6 @@
 import datetime
 import random
+import time
 
 from .cmd_for_adb import tap_this as common_tap_this
 from .cmd_for_adb import swipe_direction as common_swipe_direction
@@ -142,9 +143,15 @@ class StrategyContext:
                     return
             if x(military):
                 b = lambda item: item["_action"] == military
-                a = find_last_occurance_within_seconds(b, 60)
+                a = find_last_occurance_within_seconds(b, 60*10)
                 if not a:
                     tap_this(military)
+                    return
+            if x("help others"):
+                b = lambda item: item["_action"] == "help others"
+                a = find_last_occurance_within_seconds(b, 60*1)
+                if not a:
+                    tap_this("help others")
                     return
             if x(free_gas):
                 tap_this(free_gas)
@@ -182,11 +189,16 @@ class StrategyContext:
                 return
         if "loading" in c:
             if x("last z icon"):
+                time.sleep(60*10)
                 tap_this("last z icon")
             elif x("loading"):
                 pass
         if "military" in c:
-            if x("train"):
+            b = lambda item: item["_action"] == military
+            m = find_last_occurance_within_seconds(b, 10)
+            b = lambda item: item["_action"] == "train"
+            t = find_last_occurance_within_seconds(b, 10)
+            if (m and len(m)>0) and not t and x("train"):
                 tap_this("train")
             elif x("back"):
                 tap_this("back")
@@ -210,3 +222,4 @@ class StrategyContext:
                 elif rnd == 3:
                     swipe_direction("down")
                 return
+

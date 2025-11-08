@@ -35,7 +35,7 @@ print(common.get_device_list())
 # setup config values
 device_id = "R9YT200S1PM"
 debug = False
-has_gas = True
+# has_gas = True
 
 # strategy design pattern
 ctx = StrategyContext()
