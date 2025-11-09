@@ -30,7 +30,7 @@ class StrategyContext:
         complete_rss = "complete - rss"
         rss_chest = "rss chest"
         build_icon_can = "build icon - can"
-        attack = "attack"
+        under_attack = "under_attack"
         label_idle_rewards = "idle rewards"
         collect = "collect"
         free_gas = "free gas"
@@ -40,6 +40,11 @@ class StrategyContext:
         collect = "collect"
         medic = "medic"
         military = "military"
+        ec_hero_initiative = "event calendar - hero initiative"
+        truck = "truck background image"
+        radar = "radar background image"
+        world = "world"
+        complete_military = "complete - military"
 
         x = lambda key: key in objs
         l = lambda: len([x for x in objs if not x.startswith("_")])
@@ -83,11 +88,11 @@ class StrategyContext:
         c = objs[cv]
         objs["_action"] = None
 
-        if x("world"):
+        if x(world):
             c.append("headquarters")
         if x(label_idle_rewards):
             c.append(label_idle_rewards)
-        if x("congratulations"):
+        if x(congratulations):
             c.append("acknowledge")
         if x(label_builder):
             c.append("builder")
@@ -98,15 +103,21 @@ class StrategyContext:
         if x("train") and x("back") and x("finish now"):
             c.append("military")
         if x("label - hospital"):
-            c.append("hospital")            
+            c.append("hospital")
+        if x("todays loot count"):
+            c.append(truck)
+        if x(radar):
+            c.append(radar)
+        if x(ec_hero_initiative):
+            c.append(ec_hero_initiative)
         if x("exit") and len(c)==0: # unknown view
             c.append("exit")
         if x("back") and len(c)==0: # unknown view
             c.append("back")
 
         # strategy
-        if x(attack):
-            tap_this(attack)
+        if x(under_attack):
+            tap_this(under_attack)
             pygame.mixer.music.load("alarm_sound.mp3") 
             pygame.mixer.music.play(loops=0)   
             return
@@ -121,7 +132,7 @@ class StrategyContext:
             if x(rss_chest):
                 b = lambda item: item["_action"]==rss_chest
                 a = occurances_within_seconds(b, 60*60*4)
-                if len(a)==5:
+                if len(a)==0:
                     tap_this(rss_chest)
                     return
             if x(complete_build):
@@ -145,6 +156,9 @@ class StrategyContext:
                 if len(a)==0:
                     tap_this(military)
                     return
+            if x(complete_military):
+                tap_this(complete_military)
+                return                
             if x("help others"):
                 b = lambda item: item["_action"] == "help others"
                 a = occurances_within_seconds(b, 60*1)
@@ -157,6 +171,9 @@ class StrategyContext:
             if x(medic):
                 tap_this(medic)
                 return
+            #if x("event calendar"):
+            #    tap_this("event calendar")
+            #    return
             if x(join):
                 tap_this(join)
                 return
@@ -203,6 +220,11 @@ class StrategyContext:
         if "hospital" in c:
             if x("heal"):
                 tap_this("heal")
+            elif x("back"):
+                tap_this("back")
+        if ec_hero_initiative in c:
+            if x(ec_hero_initiative):
+                tap_this(ec_hero_initiative)
             elif x("back"):
                 tap_this("back")
         if "exit" in c:
