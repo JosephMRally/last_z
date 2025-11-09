@@ -43,23 +43,19 @@ class StrategyContext:
 
         x = lambda key: key in objs
         l = lambda: len([x for x in objs if not x.startswith("_")])
-        def find_last_occurance(predicate):
+        def occurances(predicate)->[]:
             q = self.prior
             q = list(q)
             q = q[::-1]
+            results = []
             for item in q:
                 if predicate(item):
-                    return item
-            return None
-        def find_last_occurance_within_seconds(predicate, seconds):
-            x = find_last_occurance(predicate)
-            if x == None:
-                return None
-            y = (x["_timestamp"] + datetime.timedelta(seconds=seconds)) > datetime.datetime.now()
-            if y:
-                return x
-            else:
-                return None
+                    results.append(item)
+            return results
+        def occurances_within_seconds(predicate, seconds)->[]:
+            tc = lambda x: predicate(x) & ((x["_timestamp"] + datetime.timedelta(seconds=seconds)) > datetime.datetime.now())
+            x = occurances(tc)
+            return x
         def tap_this(obj_dict_entry):
             objs["_action"] = obj_dict_entry
             common_tap_this(objs, obj_dict_entry)
@@ -101,6 +97,8 @@ class StrategyContext:
             c.append("loading")
         if x("train") and x("back") and x("finish now"):
             c.append("military")
+        if x("label - hospital"):
+            c.append("hospital")            
         if x("exit") and len(c)==0: # unknown view
             c.append("exit")
         if x("back") and len(c)==0: # unknown view
@@ -115,15 +113,15 @@ class StrategyContext:
         if "headquarters" in c:
             if x(complete_rss):
                 b = lambda item: item["_action"]==complete_rss
-                a = find_last_occurance_within_seconds(b, 60*60*.5)
-                if not a:
+                a = occurances_within_seconds(b, 60*60*1)
+                if len(a)<5:
                     objs["_action"] = complete_rss
                     tap_this(complete_rss)
                     return
             if x(rss_chest):
                 b = lambda item: item["_action"]==rss_chest
-                a = find_last_occurance_within_seconds(b, 60*60*4)
-                if not a:
+                a = occurances_within_seconds(b, 60*60*4)
+                if len(a)==5:
                     tap_this(rss_chest)
                     return
             if x(complete_build):
@@ -131,26 +129,26 @@ class StrategyContext:
                 return
             if x(build_icon_can) and not x("build icon - cannot"):
                 b = lambda item: item["_action"]==build_icon_can
-                a = find_last_occurance_within_seconds(b, 60*10)
-                if not a:
+                a = occurances_within_seconds(b, 60*10)
+                if len(a)==0:
                     tap_this(build_icon_can)
                     return
             if x(upgrade):
                 b = lambda item: item["_action"] in [build_icon_can, "build", "upgrade"]
-                a = find_last_occurance_within_seconds(b, 60)
-                if a and len(a)>0:
+                a = occurances_within_seconds(b, 60)
+                if len(a)>0:
                     tap_this(upgrade)
                     return
             if x(military):
                 b = lambda item: item["_action"] == military
-                a = find_last_occurance_within_seconds(b, 60*10)
-                if not a:
+                a = occurances_within_seconds(b, 60*10)
+                if len(a)==0:
                     tap_this(military)
                     return
             if x("help others"):
                 b = lambda item: item["_action"] == "help others"
-                a = find_last_occurance_within_seconds(b, 60*1)
-                if not a:
+                a = occurances_within_seconds(b, 60*1)
+                if len(a)==0:
                     tap_this("help others")
                     return
             if x(free_gas):
@@ -195,11 +193,16 @@ class StrategyContext:
                 pass
         if "military" in c:
             b = lambda item: item["_action"] == military
-            m = find_last_occurance_within_seconds(b, 10)
+            m = occurances_within_seconds(b, 10)
             b = lambda item: item["_action"] == "train"
-            t = find_last_occurance_within_seconds(b, 10)
+            t = occurances_within_seconds(b, 10)
             if (m and len(m)>0) and not t and x("train"):
                 tap_this("train")
+            elif x("back"):
+                tap_this("back")
+        if "hospital" in c:
+            if x("heal"):
+                tap_this("heal")
             elif x("back"):
                 tap_this("back")
         if "exit" in c:
@@ -210,7 +213,7 @@ class StrategyContext:
             return
         if len(c)==0 and x("hero"):
             b = lambda item: item["_action"] in ['left', 'right', 'up', 'down']
-            a = find_last_occurance_within_seconds(b, 60*2)
+            a = occurances_within_seconds(b, 60*2)
             if not a:
                 rnd = random.choice(range(0, 4))
                 if rnd == 0:
