@@ -12,8 +12,7 @@ from ultralytics.utils.metrics import OBBMetrics, batch_probiou
 
 
 class OBBValidator(DetectionValidator):
-    """
-    A class extending the DetectionValidator class for validation based on an Oriented Bounding Box (OBB) model.
+    """A class extending the DetectionValidator class for validation based on an Oriented Bounding Box (OBB) model.
 
     This validator specializes in evaluating models that predict rotated bounding boxes, commonly used for aerial and
     satellite imagery where objects can appear at various orientations.
@@ -41,8 +40,7 @@ class OBBValidator(DetectionValidator):
     """
 
     def __init__(self, dataloader=None, save_dir=None, args=None, _callbacks=None) -> None:
-        """
-        Initialize OBBValidator and set task to 'obb', metrics to OBBMetrics.
+        """Initialize OBBValidator and set task to 'obb', metrics to OBBMetrics.
 
         This constructor initializes an OBBValidator instance for validating Oriented Bounding Box (OBB) models.
         It extends the DetectionValidator class and configures it specifically for the OBB task.
@@ -58,8 +56,7 @@ class OBBValidator(DetectionValidator):
         self.metrics = OBBMetrics()
 
     def init_metrics(self, model: torch.nn.Module) -> None:
-        """
-        Initialize evaluation metrics for YOLO obb validation.
+        """Initialize evaluation metrics for YOLO obb validation.
 
         Args:
             model (torch.nn.Module): Model to validate.
@@ -70,19 +67,18 @@ class OBBValidator(DetectionValidator):
         self.confusion_matrix.task = "obb"  # set confusion matrix task to 'obb'
 
     def _process_batch(self, preds: dict[str, torch.Tensor], batch: dict[str, torch.Tensor]) -> dict[str, np.ndarray]:
-        """
-        Compute the correct prediction matrix for a batch of detections and ground truth bounding boxes.
+        """Compute the correct prediction matrix for a batch of detections and ground truth bounding boxes.
 
         Args:
             preds (Dict[str, torch.Tensor]): Prediction dictionary containing 'cls' and 'bboxes' keys with detected
                 class labels and bounding boxes.
-            batch (Dict[str, torch.Tensor]): Batch dictionary containing 'cls' and 'bboxes' keys with ground truth
-                class labels and bounding boxes.
+            batch (Dict[str, torch.Tensor]): Batch dictionary containing 'cls' and 'bboxes' keys with ground truth class
+                labels and bounding boxes.
 
         Returns:
-            (Dict[str, np.ndarray]): Dictionary containing 'tp' key with the correct prediction matrix as a numpy
-                array with shape (N, 10), which includes 10 IoU levels for each detection, indicating the accuracy
-                of predictions compared to the ground truth.
+            (Dict[str, np.ndarray]): Dictionary containing 'tp' key with the correct prediction matrix as a numpy array
+                with shape (N, 10), which includes 10 IoU levels for each detection, indicating the accuracy of
+                predictions compared to the ground truth.
 
         Examples:
             >>> detections = torch.rand(100, 7)  # 100 sample detections
@@ -109,8 +105,7 @@ class OBBValidator(DetectionValidator):
         return preds
 
     def _prepare_batch(self, si: int, batch: dict[str, Any]) -> dict[str, Any]:
-        """
-        Prepare batch data for OBB validation with proper scaling and formatting.
+        """Prepare batch data for OBB validation with proper scaling and formatting.
 
         Args:
             si (int): Batch index to process.
@@ -143,8 +138,7 @@ class OBBValidator(DetectionValidator):
         }
 
     def plot_predictions(self, batch: dict[str, Any], preds: list[torch.Tensor], ni: int) -> None:
-        """
-        Plot predicted bounding boxes on input images and save the result.
+        """Plot predicted bounding boxes on input images and save the result.
 
         Args:
             batch (Dict[str, Any]): Batch data containing images, file paths, and other metadata.
@@ -163,12 +157,11 @@ class OBBValidator(DetectionValidator):
         super().plot_predictions(batch, preds, ni)  # plot bboxes
 
     def pred_to_json(self, predn: dict[str, torch.Tensor], pbatch: dict[str, Any]) -> None:
-        """
-        Convert YOLO predictions to COCO JSON format with rotated bounding box information.
+        """Convert YOLO predictions to COCO JSON format with rotated bounding box information.
 
         Args:
-            predn (Dict[str, torch.Tensor]): Prediction dictionary containing 'bboxes', 'conf', and 'cls' keys
-                with bounding box coordinates, confidence scores, and class predictions.
+            predn (Dict[str, torch.Tensor]): Prediction dictionary containing 'bboxes', 'conf', and 'cls' keys with
+                bounding box coordinates, confidence scores, and class predictions.
             pbatch (Dict[str, Any]): Batch dictionary containing 'imgsz', 'ori_shape', 'ratio_pad', and 'im_file'.
 
         Notes:
@@ -195,8 +188,7 @@ class OBBValidator(DetectionValidator):
             )
 
     def save_one_txt(self, predn: dict[str, torch.Tensor], save_conf: bool, shape: tuple[int, int], file: Path) -> None:
-        """
-        Save YOLO OBB detections to a text file in normalized coordinates.
+        """Save YOLO OBB detections to a text file in normalized coordinates.
 
         Args:
             predn (torch.Tensor): Predicted detections with shape (N, 7) containing bounding boxes, confidence scores,
@@ -222,8 +214,7 @@ class OBBValidator(DetectionValidator):
         ).save_txt(file, save_conf=save_conf)
 
     def eval_json(self, stats: dict[str, Any]) -> dict[str, Any]:
-        """
-        Evaluate YOLO output in JSON format and save predictions in DOTA format.
+        """Evaluate YOLO output in JSON format and save predictions in DOTA format.
 
         Args:
             stats (Dict[str, Any]): Performance statistics dictionary.

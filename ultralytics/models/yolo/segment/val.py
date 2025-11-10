@@ -15,11 +15,10 @@ from ultralytics.utils.metrics import SegmentMetrics, mask_iou
 
 
 class SegmentationValidator(DetectionValidator):
-    """
-    A class extending the DetectionValidator class for validation based on a segmentation model.
+    """A class extending the DetectionValidator class for validation based on a segmentation model.
 
-    This validator handles the evaluation of segmentation models, processing both bounding box and mask predictions
-    to compute metrics such as mAP for both detection and segmentation tasks.
+    This validator handles the evaluation of segmentation models, processing both bounding box and mask predictions to
+    compute metrics such as mAP for both detection and segmentation tasks.
 
     Attributes:
         plot_masks (list): List to store masks for plotting.
@@ -36,8 +35,7 @@ class SegmentationValidator(DetectionValidator):
     """
 
     def __init__(self, dataloader=None, save_dir=None, args=None, _callbacks=None) -> None:
-        """
-        Initialize SegmentationValidator and set task to 'segment', metrics to SegmentMetrics.
+        """Initialize SegmentationValidator and set task to 'segment', metrics to SegmentMetrics.
 
         Args:
             dataloader (torch.utils.data.DataLoader, optional): Dataloader to use for validation.
@@ -51,8 +49,7 @@ class SegmentationValidator(DetectionValidator):
         self.metrics = SegmentMetrics()
 
     def preprocess(self, batch: dict[str, Any]) -> dict[str, Any]:
-        """
-        Preprocess batch of images for YOLO segmentation validation.
+        """Preprocess batch of images for YOLO segmentation validation.
 
         Args:
             batch (Dict[str, Any]): Batch containing images and annotations.
@@ -65,8 +62,7 @@ class SegmentationValidator(DetectionValidator):
         return batch
 
     def init_metrics(self, model: torch.nn.Module) -> None:
-        """
-        Initialize metrics and select mask processing function based on save_json flag.
+        """Initialize metrics and select mask processing function based on save_json flag.
 
         Args:
             model (torch.nn.Module): Model to validate.
@@ -94,8 +90,7 @@ class SegmentationValidator(DetectionValidator):
         )
 
     def postprocess(self, preds: list[torch.Tensor]) -> list[dict[str, torch.Tensor]]:
-        """
-        Post-process YOLO predictions and return output detections with proto.
+        """Post-process YOLO predictions and return output detections with proto.
 
         Args:
             preds (List[torch.Tensor]): Raw predictions from the model.
@@ -120,8 +115,7 @@ class SegmentationValidator(DetectionValidator):
         return preds
 
     def _prepare_batch(self, si: int, batch: dict[str, Any]) -> dict[str, Any]:
-        """
-        Prepare a batch for training or inference by processing images and targets.
+        """Prepare a batch for training or inference by processing images and targets.
 
         Args:
             si (int): Batch index.
@@ -136,8 +130,7 @@ class SegmentationValidator(DetectionValidator):
         return prepared_batch
 
     def _process_batch(self, preds: dict[str, torch.Tensor], batch: dict[str, Any]) -> dict[str, np.ndarray]:
-        """
-        Compute correct prediction matrix for a batch based on bounding boxes and optional masks.
+        """Compute correct prediction matrix for a batch based on bounding boxes and optional masks.
 
         Args:
             preds (Dict[str, torch.Tensor]): Dictionary containing predictions with keys like 'cls' and 'masks'.
@@ -146,14 +139,14 @@ class SegmentationValidator(DetectionValidator):
         Returns:
             (Dict[str, np.ndarray]): A dictionary containing correct prediction matrices including 'tp_m' for mask IoU.
 
-        Notes:
-            - If `masks` is True, the function computes IoU between predicted and ground truth masks.
-            - If `overlap` is True and `masks` is True, overlapping masks are taken into account when computing IoU.
-
         Examples:
             >>> preds = {"cls": torch.tensor([1, 0]), "masks": torch.rand(2, 640, 640), "bboxes": torch.rand(2, 4)}
             >>> batch = {"cls": torch.tensor([1, 0]), "masks": torch.rand(2, 640, 640), "bboxes": torch.rand(2, 4)}
             >>> correct_preds = validator._process_batch(preds, batch)
+
+        Notes:
+            - If `masks` is True, the function computes IoU between predicted and ground truth masks.
+            - If `overlap` is True and `masks` is True, overlapping masks are taken into account when computing IoU.
         """
         tp = super()._process_batch(preds, batch)
         gt_cls, gt_masks = batch["cls"], batch["masks"]
@@ -175,8 +168,7 @@ class SegmentationValidator(DetectionValidator):
         return tp
 
     def plot_predictions(self, batch: dict[str, Any], preds: list[dict[str, torch.Tensor]], ni: int) -> None:
-        """
-        Plot batch predictions with masks and bounding boxes.
+        """Plot batch predictions with masks and bounding boxes.
 
         Args:
             batch (Dict[str, Any]): Batch containing images and annotations.
@@ -191,8 +183,7 @@ class SegmentationValidator(DetectionValidator):
         super().plot_predictions(batch, preds, ni, max_det=50)  # plot bboxes
 
     def save_one_txt(self, predn: torch.Tensor, save_conf: bool, shape: tuple[int, int], file: Path) -> None:
-        """
-        Save YOLO detections to a txt file in normalized coordinates in a specific format.
+        """Save YOLO detections to a txt file in normalized coordinates in a specific format.
 
         Args:
             predn (torch.Tensor): Predictions in the format (x1, y1, x2, y2, conf, class).
@@ -211,8 +202,7 @@ class SegmentationValidator(DetectionValidator):
         ).save_txt(file, save_conf=save_conf)
 
     def pred_to_json(self, predn: dict[str, torch.Tensor], pbatch: dict[str, Any]) -> None:
-        """
-        Save one JSON result for COCO evaluation.
+        """Save one JSON result for COCO evaluation.
 
         Args:
             predn (Dict[str, torch.Tensor]): Predictions containing bboxes, masks, confidence scores, and classes.
