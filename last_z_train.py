@@ -48,7 +48,7 @@ while True:
         params = {
             "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
             "patience":200, "project":save_dir, 
-            "resume": True
+            "resume": False
         }
         results = model.train(**params)
         save_dir = str(results.save_dir)
@@ -58,10 +58,6 @@ while True:
         count += 1
         print(e)
         print(f"sleeping. # of retries: {count}")
-
-        # Evaluate the model's performance on the validation set
-        results = model.val()
-        print(results)
 
         time.sleep(60)
         pass
