@@ -117,6 +117,11 @@ class StrategyContext:
             c.append(label_builder)
         if x(label_requirements):
             c.append(label_requirements)
+        if x(label_get_more):
+            c.append(label_get_more)
+        if x(label_replenish_all):
+            c.append(label_replenish_all)
+        
         if x("loading") or x("last z icon"):
             c.append("loading")
         if x("train") and x("back") and x("finish now"):
@@ -137,10 +142,6 @@ class StrategyContext:
             c.append("truck - dice choose")
         if x("vip - claim"):
             c.append("vip")
-        if x(label_get_more):
-            c.append(label_get_more)
-        if x(label_replenish_all):
-            c.append(label_replenish_all)
         if x("exit") and len(c)==0: # unknown view
             c.append("exit")
         if x("back") and len(c)==0: # unknown view
@@ -281,9 +282,30 @@ class StrategyContext:
                 tap_this("exit")
                 return
         if label_requirements in c:
-            if x(upgrade):
-                tap_this(upgrade)
+            b = lambda item: item["_action"] == upgrade
+            a = occurances_within_seconds(b, 60*1)
+            if len(a)==0:
+                if x(upgrade):
+                    tap_this(upgrade)
+                    return
+            if x(exit):
+                tap_this(exit)
                 return
+        if label_get_more in c:
+            b = lambda item: item["_action"] == replenish_all
+            a = occurances_within_seconds(b, 60*1)
+            if len(a)==0:
+                if x(replenish_all):
+                    tap_this(replenish_all)
+                    return
+        if label_replenish_all in c:
+            b = lambda item: item["_action"] == confirm
+            a = occurances_within_seconds(b, 60*1)
+            if len(a)==0:
+                if x(label_replenish_all):
+                    tap_this(confirm)
+                    return
+        
         if "loading" in c:
             if x("last z icon"):
                 time.sleep(60*10)
@@ -292,9 +314,9 @@ class StrategyContext:
                 pass
         if "military" in c:
             b = lambda item: item["_action"] == military
-            m = occurances_within_seconds(b, 10)
+            m = occurances_within_seconds(b, 60)
             b = lambda item: item["_action"] == "train"
-            t = occurances_within_seconds(b, 10)
+            t = occurances_within_seconds(b, 60)
             if (m and len(m)>0) and not t and x("train"):
                 tap_this("train")
             elif x("back"):
@@ -360,14 +382,6 @@ class StrategyContext:
                 return
             elif x("back"):
                 tap_this("back")
-                return
-        if label_get_more in c:
-            if x(replenish_all):
-                tap_this(replenish_all)
-                return
-        if label_replenish_all in c:
-            if x(label_replenish_all):
-                tap_this(confirm)
                 return
 
 
