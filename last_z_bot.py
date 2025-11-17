@@ -35,7 +35,7 @@ print(common.get_device_list())
 # setup config values
 device_id = "R9YT200S1PM"
 debug = False
-has_gas = True
+# has_gas = True
 
 # strategy design pattern
 ctx = StrategyContext()
@@ -65,62 +65,18 @@ while True:
             objs[c_name].append(b)
     objs = dict(objs)
     objs["_settings.device_id"] = device_id
-
-    print("")
-    print(datetime.datetime.now())
-    ke = list(objs.keys())
-    ke.sort()
-    for k in ke:
-        print(k, objs[k])
+    objs["_timestamp"] = datetime.datetime.now()
 
     ctx.pick_strategy(objs)
 
-    """
+    with open("log.txt", "a") as f:
+        print("")
+        f.write("\n\n")
+        print(datetime.datetime.now())
+        ke = list(objs.keys())
+        ke.sort()
+        for k in ke:
+            print(k, objs[k])
+            f.write(f"{k}: {objs[k]}\n")
 
-	elif "attack" in objs:
-		print("under attack")
-		pygame.mixer.music.load("alarm_sound.mp3") 
-		pygame.mixer.music.play(loops=0)		
-	elif "medic" in objs:
-		print("medic")
-		tap_this("medic")
-	elif "exit" in objs and len(objs)==1:
-		print("objs")
-		tap_this("exit")	
-
-
-	elif state_of_action == None and "complete" in objs:
-		print("complete")
-		tap_this("complete")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "ready to build" in objs:
-		print("ready to build")
-		tap_this("ready to build")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "wanted" in objs:
-		print("wanted")
-		tap_this("wanted")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "radar" in objs:
-		print("radar")
-		tap_this("radar")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    """
-	elif state_of_action == None and "event calendar" in objs:
-		print("event calendar")
-		tap_this("event calendar")
-		last_action_timestamp = datetime.datetime.now()
-	"""
-
-    time.sleep(4)
+        time.sleep(4)
