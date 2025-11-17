@@ -1,23 +1,14 @@
 import datetime
 import random
 import time
-
-from .cmd_for_adb import tap_this as common_tap_this
-from .cmd_for_adb import swipe_direction as common_swipe_direction
-from .cmd_for_adb import kill as common_kill
-
-from .buildStrategy import BuildStrategy
-from .completeStrategy import CompleteStrategy
-from .exitStrategy import ExitStrategy
-from .helpOthersStrategy import HelpOthersStrategy
-from .loadingStrategy import LoadingStrategy
-from .lookAroundCityStrategy import LookAroundCityStrategy
 from collections import deque
-from functools import partial
-import pygame
+
+from .cmd_for_adb import kill as common_kill
+from .cmd_for_adb import swipe_direction as common_swipe_direction
+from .cmd_for_adb import tap_this as common_tap_this
+
 
 class StrategyContext:
-
     def __init__(self):
         self.strategy = None
         self.last_action_timestamp = datetime.datetime.now()
@@ -25,12 +16,11 @@ class StrategyContext:
 
     def pick_strategy(self, objs):
         cv = "_current_view"
-        label_builder = "label - builder" # is this still used?
+        label_builder = "label - builder"  # is this still used?
         upgrade = "upgrade"
         complete_rss = "complete - rss"
         rss_chest = "rss chest"
         build_icon_can = "build icon - can"
-        under_attack = "under_attack"
         label_idle_rewards = "label - idle rewards"
         collect = "collect"
         free_gas = "free gas"
@@ -40,32 +30,28 @@ class StrategyContext:
         collect = "collect"
         medic = "medic"
         military = "military"
-        ec_icon = "ec - icon"
-        truck_icon = "truck - icon"
         radar = "radar background image"
         world = "world"
         complete_military = "complete - military"
         request_help = "help - request"
         help_others = "help others"
         ec_army_expansion = "event calendar - army expansion"
-        ec_icon = "ec - icon"
         label_requirements = "label - requirements"
         headquarters = "headquarters"
         magnifying_glass = "magnifying glass"
-        lab_icon = "lab icon"
-        radar_icon = "radar - icon"
         exit = "exit"
-        skull = "skull"
-        vip_icon = "vip - icon"
         label_get_more = "label - get more"
         replenish_all = "replenish all"
         label_replenish_all = "label - replenish all"
         confirm = "confirm"
 
+        def x(key):
+            return key in objs
 
-        x = lambda key: key in objs
-        l = lambda: len([x for x in objs if not x.startswith("_")])
-        def occurances(predicate)->[]:
+        def l():
+            return len([x for x in objs if not x.startswith("_")])
+
+        def occurrences(predicate) -> []:
             q = self.prior
             q = list(q)
             q = q[::-1]
@@ -74,25 +60,33 @@ class StrategyContext:
                 if predicate(item):
                     results.append(item)
             return results
-        def occurances_within_seconds(predicate, seconds)->[]:
-            tc = lambda x: predicate(x) & ((x["_timestamp"] + datetime.timedelta(seconds=seconds)) > datetime.datetime.now())
-            x = occurances(tc)
+
+        def occurances_within_seconds(predicate, seconds) -> []:
+            def tc(x):
+                return predicate(x) & (
+                    (x["_timestamp"] + datetime.timedelta(seconds=seconds)) > datetime.datetime.now()
+                )
+
+            x = occurrences(tc)
             return x
+
         def tap_this(obj_dict_entry):
             objs["_action"] = obj_dict_entry
             common_tap_this(objs, obj_dict_entry)
+
         def swipe_direction(direction):
             objs["_action"] = direction
             common_swipe_direction(objs, direction)
+
         def kill(objs):
-            device_id = objs["_settings.device_id"]
+            objs["_settings.device_id"]
             objs["_action"] = "kill"
             common_kill(objs)
 
         self.prior.append(objs)
 
         # always reset after 10 hours
-        if self.last_action_timestamp + datetime.timedelta(minutes=60*10) < datetime.datetime.now():
+        if self.last_action_timestamp + datetime.timedelta(minutes=60 * 10) < datetime.datetime.now():
             # reset state, something went wrong
             print("reset", str(datetime.datetime.now()))
             self.last_action_timestamp = datetime.datetime.now()
@@ -121,7 +115,7 @@ class StrategyContext:
             c.append(label_get_more)
         if x(label_replenish_all):
             c.append(label_replenish_all)
-        
+
         if x("loading") or x("last z icon"):
             c.append("loading")
         if x("train") and x("back") and x("finish now"):
@@ -134,19 +128,18 @@ class StrategyContext:
             c.append(ec_army_expansion)
         if x(radar):
             c.append(radar)
-        if x("boomer selected"): # TODO: this is incomplete
+        if x("boomer selected"):  # TODO: this is incomplete
             c.append(magnifying_glass)
-        if x("my truck"): # TODO: this needs to be better
+        if x("my truck"):  # TODO: this needs to be better
             c.append("truck")
         if x("dice") and x("go"):
             c.append("truck - dice choose")
         if x("vip - claim"):
             c.append("vip")
-        if x("exit") and len(c)==0: # unknown view
+        if x("exit") and len(c) == 0:  # unknown view
             c.append("exit")
-        if x("back") and len(c)==0: # unknown view
+        if x("back") and len(c) == 0:  # unknown view
             c.append("back")
-
 
         # strategy
         """
@@ -159,46 +152,64 @@ class StrategyContext:
         """
         if headquarters in c:
             if x(complete_rss):
-                b = lambda item: item["_action"]==complete_rss
-                a = occurances_within_seconds(b, 60*60*1)
-                if len(a)<5:
+
+                def b(item):
+                    return item["_action"] == complete_rss
+
+                a = occurances_within_seconds(b, 60 * 60 * 1)
+                if len(a) < 5:
                     objs["_action"] = complete_rss
                     tap_this(complete_rss)
                     return
             if x(rss_chest):
-                b = lambda item: item["_action"]==rss_chest
-                a = occurances_within_seconds(b, 60*60*4)
-                if len(a)==0:
+
+                def b(item):
+                    return item["_action"] == rss_chest
+
+                a = occurances_within_seconds(b, 60 * 60 * 4)
+                if len(a) == 0:
                     tap_this(rss_chest)
                     return
             if x(complete_build):
                 tap_this(complete_build)
                 return
             if x(build_icon_can):
-                b = lambda item: item["_action"] == build_icon_can
-                a = occurances_within_seconds(b, 60*10)
-                if len(a)==0:
+
+                def b(item):
+                    return item["_action"] == build_icon_can
+
+                a = occurances_within_seconds(b, 60 * 10)
+                if len(a) == 0:
                     tap_this(build_icon_can)
                     return
             if x(upgrade):
-                b = lambda item: item["_action"] == upgrade
+
+                def b(item):
+                    return item["_action"] == upgrade
+
                 a = occurances_within_seconds(b, 60)
-                if len(a)==0:
+                if len(a) == 0:
                     tap_this(upgrade)
                     return
             if x(military):
-                b = lambda item: item["_action"] == military
-                a = occurances_within_seconds(b, 60*10)
-                if len(a)==0:
+
+                def b(item):
+                    return item["_action"] == military
+
+                a = occurances_within_seconds(b, 60 * 10)
+                if len(a) == 0:
                     tap_this(military)
                     return
             if x(complete_military):
                 tap_this(complete_military)
-                return                
+                return
             if x(help_others):
-                b = lambda item: item["_action"] == help_others
-                a = occurances_within_seconds(b, 60*1)
-                if len(a)==0:
+
+                def b(item):
+                    return item["_action"] == help_others
+
+                a = occurances_within_seconds(b, 60 * 1)
+                if len(a) == 0:
                     tap_this(help_others)
                     return
             if x(free_gas):
@@ -235,9 +246,12 @@ class StrategyContext:
             """
         if world in c:
             if x(magnifying_glass):
-                b = lambda item: item["_action"] == magnifying_glass
-                a = occurances_within_seconds(b, 60*1)
-                if len(a)==0:
+
+                def b(item):
+                    return item["_action"] == magnifying_glass
+
+                a = occurances_within_seconds(b, 60 * 1)
+                if len(a) == 0:
                     tap_this(magnifying_glass)
                     return
             if x("team up"):
@@ -272,7 +286,7 @@ class StrategyContext:
                 tap_this(congratulations)
                 return
         if label_builder in c:
-            #if x("finish now"): # TODO: put back on next trained model
+            # if x("finish now"): # TODO: put back on next trained model
             #    tap_this("finish now")
             #    return
             if x("build"):
@@ -282,9 +296,12 @@ class StrategyContext:
                 tap_this("exit")
                 return
         if label_requirements in c:
-            b = lambda item: item["_action"] == upgrade
-            a = occurances_within_seconds(b, 60*1)
-            if len(a)==0:
+
+            def b(item):
+                return item["_action"] == upgrade
+
+            a = occurances_within_seconds(b, 60 * 1)
+            if len(a) == 0:
                 if x(upgrade):
                     tap_this(upgrade)
                     return
@@ -292,32 +309,44 @@ class StrategyContext:
                 tap_this(exit)
                 return
         if label_get_more in c:
-            b = lambda item: item["_action"] == replenish_all
-            a = occurances_within_seconds(b, 60*1)
-            if len(a)==0:
+
+            def b(item):
+                return item["_action"] == replenish_all
+
+            a = occurances_within_seconds(b, 60 * 1)
+            if len(a) == 0:
                 if x(replenish_all):
                     tap_this(replenish_all)
                     return
         if label_replenish_all in c:
-            b = lambda item: item["_action"] == confirm
-            a = occurances_within_seconds(b, 60*1)
-            if len(a)==0:
+
+            def b(item):
+                return item["_action"] == confirm
+
+            a = occurances_within_seconds(b, 60 * 1)
+            if len(a) == 0:
                 if x(label_replenish_all):
                     tap_this(confirm)
                     return
-        
+
         if "loading" in c:
             if x("last z icon"):
-                time.sleep(60*10)
+                time.sleep(60 * 10)
                 tap_this("last z icon")
             elif x("loading"):
                 pass
         if "military" in c:
-            b = lambda item: item["_action"] == military
+
+            def b(item):
+                return item["_action"] == military
+
             m = occurances_within_seconds(b, 60)
-            b = lambda item: item["_action"] == "train"
+
+            def b(item):
+                return item["_action"] == "train"
+
             t = occurances_within_seconds(b, 60)
-            if (m and len(m)>0) and not t and x("train"):
+            if (m and len(m) > 0) and not t and x("train"):
                 tap_this("train")
             elif x("back"):
                 tap_this("back")
@@ -339,9 +368,12 @@ class StrategyContext:
         if "back" in c:
             tap_this("back")
             return
-        if len(c)==0 and "headquarters" in c:
-            b = lambda item: item["_action"] in ['left', 'right', 'up', 'down']
-            a = occurances_within_seconds(b, 60*1)
+        if len(c) == 0 and "headquarters" in c:
+
+            def b(item):
+                return item["_action"] in ["left", "right", "up", "down"]
+
+            a = occurances_within_seconds(b, 60 * 1)
             if not a:
                 rnd = random.choice(range(0, 4))
                 if rnd == 0:
@@ -361,13 +393,19 @@ class StrategyContext:
                 tap_this("search")
 
         if "truck" in c:
-            b = lambda item: item["_action"] == "my truck"
-            m = occurances_within_seconds(b, 60*60*1)
-            b = lambda item: item["_action"] == "truck - add"
-            n = occurances_within_seconds(b, 60*60*1)
-            if x("my truck") and len(m)==0:
+
+            def b(item):
+                return item["_action"] == "my truck"
+
+            m = occurances_within_seconds(b, 60 * 60 * 1)
+
+            def b(item):
+                return item["_action"] == "truck - add"
+
+            n = occurances_within_seconds(b, 60 * 60 * 1)
+            if x("my truck") and len(m) == 0:
                 tap_this("my truck")
-            elif x("truck - add") and len(n)<3:
+            elif x("truck - add") and len(n) < 3:
                 tap_this("truck - add")
         if "truck - dice choose" in c:
             if x("dice") and not x("asdf"):
@@ -383,10 +421,3 @@ class StrategyContext:
             elif x("back"):
                 tap_this("back")
                 return
-
-
-
-
-
-
-

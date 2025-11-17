@@ -9,8 +9,6 @@ Copyright: (c) 2025 by Joseph Miguel<br/>
 
 import subprocess
 import time
-import os
-import yaml
 
 import last_z.cmd_for_adb as common
 from ultralytics import YOLO
@@ -48,9 +46,13 @@ while True:
 
     try:
         params = {
-            "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
-            "patience":200, "project":save_dir, 
-            "resume": resume
+            "data": yaml_loc,
+            "epochs": 10000,
+            "imgsz": 1024,
+            "device": "mps",
+            "patience": 200,
+            "project": save_dir,
+            "resume": resume,
         }
         results = model.train(**params)
         save_dir = str(results.save_dir)
@@ -63,7 +65,6 @@ while True:
 
         time.sleep(60)
         pass
-
 
 
 # from roboflow import Roboflow
