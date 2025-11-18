@@ -61,6 +61,8 @@ class StrategyContext:
         replenish_all = "replenish all"
         label_replenish_all = "label - replenish all"
         confirm = "confirm"
+        radar_label = "radar - label"
+        radar_help_alliance = "radar - help alliance"
 
 
         x = lambda key: key in objs
@@ -124,7 +126,7 @@ class StrategyContext:
         
         if x("loading") or x("last z icon"):
             c.append("loading")
-        if x("train") and x("back") and x("finish now"):
+        if x("military - warrior level"):
             c.append("military")
         if x("label - hospital"):
             c.append("hospital")
@@ -132,8 +134,8 @@ class StrategyContext:
             c.append(truck)
         if x(ec_army_expansion):
             c.append(ec_army_expansion)
-        if x(radar):
-            c.append(radar)
+        if x(radar_label):
+            c.append(radar_label)
         if x("boomer selected"): # TODO: this is incomplete
             c.append(magnifying_glass)
         if x("my truck"): # TODO: this needs to be better
@@ -208,6 +210,11 @@ class StrategyContext:
                 tap_this(medic)
                 return
             """
+            if x(radar_icon):
+                tap_this(radar_icon)
+                return
+            """
+            """
             if x(skull):
                 tap_this(skull)
                 return
@@ -246,6 +253,11 @@ class StrategyContext:
             if x("march"):
                 tap_this("march")
                 return
+            """
+            if x(radar_icon):
+                tap_this(radar_icon)
+                return
+            """
         """
         if headquarters in c or world in c:
             b = lambda item: item["_action"] != None and item["_action"] not in ['left', 'right', 'up', 'down']
@@ -284,11 +296,12 @@ class StrategyContext:
         if label_requirements in c:
             b = lambda item: item["_action"] == upgrade
             a = occurances_within_seconds(b, 60*1)
-            if len(a)==0:
+            print(a)
+            if len(a)<=1: # TODO: set this back to zero and change to upgrade button
                 if x(upgrade):
                     tap_this(upgrade)
                     return
-            if x(exit):
+            elif x(exit):
                 tap_this(exit)
                 return
         if label_get_more in c:
@@ -367,8 +380,10 @@ class StrategyContext:
             n = occurances_within_seconds(b, 60*60*1)
             if x("my truck") and len(m)==0:
                 tap_this("my truck")
+                return
             elif x("truck - add") and len(n)<3:
                 tap_this("truck - add")
+                return
         if "truck - dice choose" in c:
             if x("dice") and not x("asdf"):
                 tap_this("dice")
@@ -383,10 +398,15 @@ class StrategyContext:
             elif x("back"):
                 tap_this("back")
                 return
-
-
-
-
-
-
+        if radar_label in c:
+            b = lambda item: item["_action"] == "radar - laurasadditional items"
+            a = occurances_within_seconds(b, 60*60*1)
+            if len(a)==0 and x("radar - laurasadditional items"):
+                tap_this("radar - laurasadditional items")
+                return
+            b = lambda item: item["_action"] == radar_help_alliance
+            a = occurances_within_seconds(b, 60*60*1)
+            if len(a)==0 and x(radar_help_alliance):
+                tap_this(radar_help_alliance)
+                return
 
