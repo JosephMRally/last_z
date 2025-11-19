@@ -144,8 +144,8 @@ class StrategyContext:
             c.append("truck - dice choose")
         if x("vip - claim"):
             c.append("vip")
-        if x("exit") and len(c)==0: # unknown view
-            c.append("exit")
+        if x(exit) and len(c)==0: # unknown view
+            c.append(exit)
         if x("back") and len(c)==0: # unknown view
             c.append("back")
 
@@ -290,8 +290,8 @@ class StrategyContext:
             if x("build"):
                 tap_this("build")
                 return
-            if x("exit"):
-                tap_this("exit")
+            if x(exit):
+                tap_this(exit)
                 return
         if label_requirements in c:
             b = lambda item: item["_action"] == upgrade
@@ -311,6 +311,8 @@ class StrategyContext:
                 if x(replenish_all):
                     tap_this(replenish_all)
                     return
+            elif x(exit):
+                tap_this(exit)
         if label_replenish_all in c:
             b = lambda item: item["_action"] == confirm
             a = occurances_within_seconds(b, 60*1)
