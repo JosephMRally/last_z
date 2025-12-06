@@ -50,14 +50,14 @@ if __name__ == '__main__':
             save_dir = None
         else:
             save_dir = "./runs/detect/train"
-            model_loc = f"{save_dir}/weights/best.pt"
+            model_loc = f"{save_dir}/weights/last.pt"
             model = YOLO(model_loc)
             resume = True
 
         try:
             params = {
-                "data":yaml_loc, "epochs":10000, "imgsz":1024, "device":"mps", 
-                "patience":200, "project":save_dir, 
+                "data":yaml_loc, "epochs":2000, "imgsz":1024, "device":"mps", 
+                "patience":200, "project":save_dir, "dropout":0.1, "batch":-1,
                 "resume": resume
             }
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             print(e)
             print(f"sleeping. # of retries: {count}")
 
-            time.sleep(60)
+            time.sleep(10)
             pass
 
 
