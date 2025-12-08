@@ -43,7 +43,7 @@ def tap_this(objs, obj_dict_entry):
 def tap(objs, x, y):
     device_id = objs["_settings.device_id"]
     cmd = f"adb -s {device_id} shell input tap {x} {y}"
-    print(cmd)
+    # print(cmd)
     subprocess.run(cmd, shell=True)
 
 
@@ -67,8 +67,10 @@ def swipe(objs, xyxy):
     subprocess.run(cmd, shell=True)
 
 
-def kill(device_id):
+def kill(objs):
+    device_id = objs["_settings.device_id"]
     cmd = f"adb -s {device_id} shell am force-stop com.readygo.barrel.gp"
+    print(cmd)
     subprocess.run(cmd, shell=True)
 
 

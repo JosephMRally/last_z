@@ -51,7 +51,8 @@ while True:
     cv2.imwrite(path_and_filename, img_2)
 
     # Perform object detection on an image using the model
-    results = model.predict(path_and_filename, show=debug, show_boxes=True, verbose=False, imgsz=1024, conf=0.80)
+    results = model.predict(path_and_filename, show=debug, show_boxes=True, 
+        verbose=False, imgsz=1024, conf=0.70)
 
     # extract the results
     objs = defaultdict(list)
