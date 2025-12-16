@@ -34,8 +34,7 @@ print(common.get_device_list())
 
 # setup config values
 device_id = "R9YT200S1PM"
-debug = False
-# has_gas = True
+debug = True
 
 # strategy design pattern
 ctx = StrategyContext()
@@ -52,7 +51,7 @@ while True:
 
     # Perform object detection on an image using the model
     results = model.predict(path_and_filename, show=debug, show_boxes=True, 
-        verbose=False, imgsz=1024, conf=0.70)
+        verbose=False, imgsz=1024, conf=0.57)
 
     # extract the results
     objs = defaultdict(list)
