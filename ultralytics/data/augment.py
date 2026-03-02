@@ -703,7 +703,7 @@ class Mosaic(BaseMixTransform):
 
         Returns:
             (Dict[str, Any]): A dictionary containing the mosaic image and updated labels. It includes the following
-                keys:
+            keys:
                 - 'img' (np.ndarray): The final mosaic image.
                 - Other keys from the input labels, updated to reflect the new mosaic arrangement.
 
