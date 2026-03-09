@@ -22,7 +22,7 @@ onnxruntime==1.22.1
 onnxslim==0.1.61
 opencv-python==4.11.0.86
 opencv-python-headless==4.10.0.84
-packaging==25.0
+packaging==26.0
 pandas==2.3.1
 pi_heif==1.1.1
 pillow==11.3.0
