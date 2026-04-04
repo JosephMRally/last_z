@@ -38,7 +38,7 @@ PyYAML==6.0.2
 redis==6.4.0
 requests==2.32.4
 requests-toolbelt==1.0.0
-roboflow==1.2.11
+roboflow==1.2.16
 scipy==1.16.1
 seaborn==0.13.2
 setuptools==80.9.0
